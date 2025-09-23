@@ -24,7 +24,7 @@
   - **注意: orval の型アサーション問題により、現在 pre-commit フックは一時的に無効化**
   - _要件: 6.1, 6.2, 6.3_
 
-- [ ] 4. Core 層のヘルスチェックドメインロジック実装
+- [x] 4. Core 層のヘルスチェックドメインロジック実装
   - HealthStatus, ServiceHealth ドメインモデルの定義
   - CoreHealthService クラスの実装
   - Supabase 接続チェックロジックの実装
