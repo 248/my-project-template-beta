@@ -117,6 +117,34 @@ UI層（apps/web） → BFF層 → Core層
 - `BACKEND_MODE=monolith`: 同一Worker内でBFF呼び出し
 - `BACKEND_MODE=service`: 外部サービス呼び出し
 
+## CI/CD
+
+### 自動デプロイ
+
+- **Preview環境**: PR作成・更新時に自動デプロイ
+- **Production環境**: mainブランチマージ時に自動デプロイ
+
+### ワークフロー
+
+1. **CI**: OpenAPI Lint、生成物同期チェック、ビルド・テスト（monolith/service両モード）
+2. **Preview Deploy**: PR環境への自動デプロイとスモークテスト
+3. **Production Deploy**: 本番環境への自動デプロイと検証
+4. **Rollback**: 手動ロールバック機能
+
+### セットアップ
+
+詳細な設定手順は以下を参照：
+
+- [GitHub セットアップガイド](docs/github-setup.md)
+- [デプロイメントガイド](docs/deployment.md)
+
+## ドキュメント
+
+- [環境セットアップ](docs/environment-setup.md)
+- [GitHub セットアップ](docs/github-setup.md)
+- [デプロイメントガイド](docs/deployment.md)
+- [タスクテンプレート](docs/task-template.md)
+
 ## ライセンス
 
 MIT

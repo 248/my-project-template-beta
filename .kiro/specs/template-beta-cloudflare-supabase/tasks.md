@@ -102,7 +102,7 @@
   - 開発環境での動作テスト
   - _要件: 1.1, 9.1_
 
-- [ ] 11. CI/CD 基盤の構築
+- [x] 11. CI/CD 基盤の構築
   - GitHub Actions ワークフローの作成
   - BACKEND_MODE=monolith|service の両方でのビルド・テスト
   - @redocly/cli による OpenAPI Lint と Breaking Change 検知

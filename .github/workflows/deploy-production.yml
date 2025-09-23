@@ -1,0 +1,197 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: 22
+  PNPM_VERSION: 9.0.0
+  # 実際のCloudflare Workers サブドメインに更新してください
+  PRODUCTION_URL: 'https://template-beta-cloudflare-supabase-prod.your-subdomain.workers.dev'
+
+jobs:
+  # 本番デプロイ前の最終チェック
+  pre-deploy-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate and verify
+        run: pnpm run generate:check
+
+      - name: Full build test
+        run: pnpm run build
+
+      - name: Run all tests
+        run: |
+          pnpm run test
+          pnpm run test:e2e
+
+      - name: Security audit
+        run: pnpm audit --audit-level high
+
+  # 本番デプロイ
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: pre-deploy-checks
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate types and client
+        run: pnpm run generate
+
+      - name: Build application
+        env:
+          BACKEND_MODE: monolith
+        run: pnpm run build
+
+      - name: Create deployment tag
+        id: tag
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          TAG="deploy-${TIMESTAMP}-${GITHUB_SHA:0:7}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          git tag $TAG
+          git push origin $TAG
+          echo "Created deployment tag: $TAG"
+
+      - name: Deploy to Cloudflare Workers (Production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env production
+          workingDirectory: .
+          wranglerVersion: '3'
+
+      - name: Store deployment info
+        run: |
+          echo "DEPLOYMENT_TAG=${{ steps.tag.outputs.tag }}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+  # 本番環境でのヘルスチェック
+  post-deploy-verification:
+    name: Post-deployment Verification
+    runs-on: ubuntu-latest
+    needs: deploy-production
+
+    steps:
+      - name: Wait for deployment propagation
+        run: sleep 60
+
+      - name: Production health check
+        run: |
+          PROD_URL="${{ env.PRODUCTION_URL }}"
+
+          echo "Verifying production deployment..."
+
+          # API health check
+          API_RESPONSE=$(curl -s -f "$PROD_URL/api/health" | jq -r '.status')
+          if [ "$API_RESPONSE" != "healthy" ] && [ "$API_RESPONSE" != "degraded" ]; then
+            echo "❌ Production API health check failed: $API_RESPONSE"
+            exit 1
+          fi
+
+          # SSR health check
+          SSR_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health")
+          if [ "$SSR_RESPONSE" != "200" ]; then
+            echo "❌ Production SSR health check failed (HTTP $SSR_RESPONSE)"
+            exit 1
+          fi
+
+          echo "✅ Production deployment verified successfully"
+
+      - name: Performance verification
+        run: |
+          PROD_URL="${{ env.PRODUCTION_URL }}"
+
+          echo "Verifying production performance..."
+
+          # パフォーマンステスト（10回実行）
+          TOTAL_TIME=0
+          FAILED_REQUESTS=0
+
+          for i in {1..10}; do
+            TIME=$(curl -s -o /dev/null -w "%{time_total}" "$PROD_URL/api/health" || echo "999")
+            if [ "$TIME" = "999" ]; then
+              FAILED_REQUESTS=$((FAILED_REQUESTS + 1))
+            else
+              TOTAL_TIME=$(echo "$TOTAL_TIME + $TIME" | bc -l)
+            fi
+          done
+
+          if [ $FAILED_REQUESTS -gt 2 ]; then
+            echo "❌ Too many failed requests: $FAILED_REQUESTS/10"
+            exit 1
+          fi
+
+          SUCCESSFUL_REQUESTS=$((10 - FAILED_REQUESTS))
+          AVG_TIME=$(echo "scale=3; $TOTAL_TIME / $SUCCESSFUL_REQUESTS" | bc -l)
+          echo "Average response time: ${AVG_TIME}s (${SUCCESSFUL_REQUESTS}/10 successful)"
+
+          # 300ms目標チェック
+          if (( $(echo "$AVG_TIME > 0.3" | bc -l) )); then
+            echo "⚠️ Performance target not met (${AVG_TIME}s > 0.3s)"
+            # 本番では警告のみ、ロールバックは手動判断
+          else
+            echo "✅ Performance target met (${AVG_TIME}s ≤ 0.3s)"
+          fi
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "🚀 Production deployment completed successfully"
+          echo "URL: ${{ env.PRODUCTION_URL }}"
+          echo "Tag: ${{ needs.deploy-production.outputs.tag }}"
+
+  # デプロイ失敗時の通知
+  notify-failure:
+    name: Notify Deployment Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-production, post-deploy-verification]
+    if: failure()
+
+    steps:
+      - name: Deployment failure notification
+        run: |
+          echo "❌ Production deployment failed"
+          echo "Please check the logs and consider rollback if necessary"
+          echo "Rollback command: wrangler deploy --env production --compatibility-date 2024-09-23"
+          echo "Use the previous deployment tag for rollback"

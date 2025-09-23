@@ -1,0 +1,116 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback_tag:
+        description: 'Deployment tag to rollback to (e.g., deploy-20241201-123456-abc1234)'
+        required: true
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: 22
+  PNPM_VERSION: 9.0.0
+  # 実際のCloudflare Workers サブドメインに更新してください
+  PRODUCTION_URL: 'https://template-beta-cloudflare-supabase-prod.your-subdomain.workers.dev'
+
+jobs:
+  rollback:
+    name: Rollback to Previous Version
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Validate rollback tag
+        run: |
+          TAG="${{ github.event.inputs.rollback_tag }}"
+          if [[ ! "$TAG" =~ ^deploy-[0-9]{8}-[0-9]{6}-[a-f0-9]{7}$ ]]; then
+            echo "❌ Invalid tag format. Expected: deploy-YYYYMMDD-HHMMSS-commit"
+            echo "Example: deploy-20241201-123456-abc1234"
+            exit 1
+          fi
+          echo "✅ Tag format is valid: $TAG"
+
+      - name: Checkout rollback tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.rollback_tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate types and client
+        run: pnpm run generate
+
+      - name: Build application
+        env:
+          BACKEND_MODE: monolith
+        run: pnpm run build
+
+      - name: Pre-rollback health check
+        run: |
+          echo "Checking current production status before rollback..."
+          PROD_URL="${{ env.PRODUCTION_URL }}"
+
+          CURRENT_STATUS=$(curl -s "$PROD_URL/api/health" | jq -r '.status' || echo "error")
+          echo "Current production status: $CURRENT_STATUS"
+
+      - name: Deploy rollback version
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env production
+          workingDirectory: .
+          wranglerVersion: '3'
+
+      - name: Verify rollback
+        run: |
+          echo "Waiting for rollback deployment to propagate..."
+          sleep 60
+
+          PROD_URL="${{ env.PRODUCTION_URL }}"
+
+          # ヘルスチェック
+          API_RESPONSE=$(curl -s -f "$PROD_URL/api/health" | jq -r '.status')
+          if [ "$API_RESPONSE" != "healthy" ] && [ "$API_RESPONSE" != "degraded" ]; then
+            echo "❌ Rollback verification failed: $API_RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Rollback completed successfully"
+          echo "Production is now running version: ${{ github.event.inputs.rollback_tag }}"
+
+      - name: Create rollback record
+        run: |
+          ROLLBACK_TAG="rollback-$(date +%Y%m%d-%H%M%S)-${{ github.event.inputs.rollback_tag }}"
+          git tag -a "$ROLLBACK_TAG" -m "Rollback to ${{ github.event.inputs.rollback_tag }}: ${{ github.event.inputs.reason }}"
+          git push origin "$ROLLBACK_TAG"
+          echo "Created rollback record tag: $ROLLBACK_TAG"
+
+      - name: Rollback summary
+        run: |
+          echo "## 🔄 Rollback Summary"
+          echo ""
+          echo "**Target Tag:** ${{ github.event.inputs.rollback_tag }}"
+          echo "**Reason:** ${{ github.event.inputs.reason }}"
+          echo "**Executed by:** ${{ github.actor }}"
+          echo "**Timestamp:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo ""
+          echo "**Production URL:** ${{ env.PRODUCTION_URL }}"
+          echo ""
+          echo "Please verify the application is working as expected."
