@@ -9,8 +9,8 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "dev": "pnpm run generate:check && wrangler dev --env development",
-    "dev:monolith": "BACKEND_MODE=monolith pnpm dev",
-    "dev:service": "BACKEND_MODE=service pnpm dev",
+    "dev:monolith": "cross-env BACKEND_MODE=monolith pnpm dev",
+    "dev:service": "cross-env BACKEND_MODE=service pnpm dev",
     "build": "pnpm run generate && pnpm run build:packages && pnpm run build:web",
     "build:dev": "pnpm run generate && pnpm run build:packages && pnpm --filter web build",
     "build:packages": "pnpm --filter './packages/*' build",
@@ -42,6 +42,7 @@
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "cross-env": "^10.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-boundaries": "^4.0.0",

@@ -95,7 +95,7 @@
   - **先送り問題**: 現在 `packages/generated/src/client.ts` で手動型アサーションを使用
   - _要件: 6.2, 6.3_
 
-- [ ] 10.2. Kiro IDE自動修正後の問題修正
+- [x] 10.2. Kiro IDE自動修正後の問題修正
   - Windows環境でのpackage.jsonコマンド互換性修正（cross-env使用）
   - health/page.tsxのSSR問題修正（絶対URLでのAPI呼び出し）
   - 型チェックとビルドの動作確認

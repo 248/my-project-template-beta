@@ -1,5 +1,4 @@
 import type { HealthResponse } from '@template/generated';
-import { getHealth } from '@template/generated';
 
 import { Container } from '@/components/layout/Container';
 import { Alert } from '@/components/ui/Alert';
@@ -18,8 +17,11 @@ async function getHealthStatus(): Promise<{
   const startTime = performance.now();
 
   try {
-    // 生成されたクライアントを使用（型安全）
-    const result = await getHealth({
+    // SSR時は絶対URLでAPI呼び出し
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:8787';
+    const apiUrl = `${baseUrl}/api/health`;
+
+    const response = await fetch(apiUrl, {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'NextJS-SSR/1.0',
@@ -28,8 +30,13 @@ async function getHealthStatus(): Promise<{
       signal: AbortSignal.timeout(3000),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as HealthResponse;
+
     const performanceMs = performance.now() - startTime;
-    const data = result.data;
 
     // 開発環境でのパフォーマンスログ
     if (process.env.NODE_ENV === 'development') {
