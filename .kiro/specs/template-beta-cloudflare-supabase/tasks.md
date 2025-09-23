@@ -20,6 +20,7 @@
   - orval による API クライアント生成の設定
   - @redocly/cli による Lint と Breaking Change 検知設定
   - 生成コマンドと package.json スクリプトの設定
+  - **TODO: OpenAPI作成後、.husky/pre-commit の generate:check を再有効化**
   - _要件: 6.1, 6.2, 6.3_
 
 - [ ] 4. Core 層のヘルスチェックドメインロジック実装
