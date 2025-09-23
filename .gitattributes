@@ -1,0 +1,41 @@
+# すべてのテキストファイルでLF改行コードを強制
+* text=auto eol=lf
+
+# バイナリファイルの明示的な指定
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+
+# 特定のファイルタイプでLFを強制
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+
+# 設定ファイル
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.env* text eol=lf
+*.config.js text eol=lf
+*.config.ts text eol=lf
+*.config.mjs text eol=lf

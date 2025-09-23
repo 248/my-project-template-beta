@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# OpenAPI生成物の同期チェック
+pnpm run generate:check
+
+# lint-stagedの実行
+pnpm run pre-commit
