@@ -31,7 +31,7 @@
   - 全体ステータス判定ロジックの実装
   - _要件: 2.1, 2.2, 2.3_
 
-- [ ] 5. Adapter 層の基盤実装
+- [x] 5. Adapter 層の基盤実装
   - SupabaseAdapter クラスの実装（接続チェック機能）
   - LoggerAdapter クラスの実装（pino 設定、redact 機能）
   - child logger で traceId を bindings 固定、全 HTTP レスポンスに traceId を含める仕組み
