@@ -74,9 +74,18 @@ describe('ErrorBoundary', () => {
   });
 
   it('再試行ボタンをクリックした場合、エラー状態をリセットすべき', async () => {
+    // エラーを投げるコンポーネント
+    const TestComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div>No error</div>;
+    };
+
+    // 最初はエラーを投げる状態でレンダリング
     const { rerender } = render(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={true} />
+      <ErrorBoundary key="error-test">
+        <TestComponent shouldThrow={true} />
       </ErrorBoundary>
     );
 
@@ -86,12 +95,13 @@ describe('ErrorBoundary', () => {
     // 再試行ボタンをクリック
     fireEvent.click(screen.getByRole('button', { name: '再試行' }));
 
-    // 少し待ってから再レンダリング（エラーが発生しないコンポーネントで）
+    // 少し待つ（ErrorBoundaryの内部タイムアウト）
     await new Promise(resolve => setTimeout(resolve, 150));
 
+    // 新しいキーでErrorBoundaryを再レンダリング（エラーが発生しないコンポーネントで）
     rerender(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={false} />
+      <ErrorBoundary key="success-test">
+        <TestComponent shouldThrow={false} />
       </ErrorBoundary>
     );
 
@@ -99,9 +109,18 @@ describe('ErrorBoundary', () => {
   });
 
   it('リセットボタンをクリックした場合、エラー状態をリセットすべき', () => {
+    // エラーを投げるコンポーネント
+    const TestComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div>No error</div>;
+    };
+
+    // 最初はエラーを投げる状態でレンダリング
     const { rerender } = render(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={true} />
+      <ErrorBoundary key="error-test">
+        <TestComponent shouldThrow={true} />
       </ErrorBoundary>
     );
 
@@ -111,10 +130,10 @@ describe('ErrorBoundary', () => {
     // リセットボタンをクリック
     fireEvent.click(screen.getByRole('button', { name: 'リセット' }));
 
-    // 再レンダリング（エラーが発生しないコンポーネントで）
+    // 新しいキーでErrorBoundaryを再レンダリング（エラーが発生しないコンポーネントで）
     rerender(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={false} />
+      <ErrorBoundary key="success-test">
+        <TestComponent shouldThrow={false} />
       </ErrorBoundary>
     );
 

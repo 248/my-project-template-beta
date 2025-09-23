@@ -33,7 +33,7 @@ export const getHealth = async ( options?: RequestInit): Promise<getHealthRespon
   }
 
   )
-  const data = await res.json()
+  const data = await res.json() as HealthResponse
 
   return { status: res.status, data }
 }

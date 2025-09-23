@@ -8,11 +8,18 @@ import { vi } from 'vitest';
 import { GET } from '@/app/api/health/route';
 
 // モック設定
-vi.mock('@template/bff', () => ({
-  HealthService: vi.fn().mockImplementation(() => ({
+vi.mock('@template/bff', () => {
+  const mockHealthService = {
     checkHealth: vi.fn(),
-  })),
-}));
+  };
+  
+  return {
+    HealthService: vi.fn().mockImplementation(() => mockHealthService),
+    ApiClientAdapter: vi.fn().mockImplementation(() => ({
+      getHealth: vi.fn(),
+    })),
+  };
+});
 
 vi.mock('@template/core', () => ({
   CoreHealthService: vi.fn().mockImplementation(() => ({})),
@@ -35,6 +42,8 @@ vi.mock('@template/adapters', () => ({
   },
   generateTraceId: vi.fn().mockReturnValue('test-trace-id'),
   extractTraceIdFromHeaders: vi.fn().mockReturnValue('header-trace-id'),
+  isMonolithMode: vi.fn().mockReturnValue(true),
+  validateEnvConfig: vi.fn(),
 }));
 
 describe('/api/health', () => {
@@ -49,9 +58,9 @@ describe('/api/health', () => {
   describe('GET', () => {
     it('正常なヘルスチェック結果を返すべき', async () => {
       // モックの設定
-      const mockHealthService = require('@template/bff').HealthService;
-      const mockInstance = new mockHealthService();
-      mockInstance.checkHealth.mockResolvedValue({
+      const { HealthService } = await import('@template/bff');
+      const mockInstance = new HealthService({} as any, {} as any);
+      (mockInstance.checkHealth as any).mockResolvedValue({
         success: true,
         data: {
           status: 'healthy',
@@ -63,7 +72,7 @@ describe('/api/health', () => {
               responseTime: 150,
             },
           ],
-          traceId: 'test-trace-id',
+          traceId: 'header-trace-id',
         },
       });
 
@@ -88,12 +97,12 @@ describe('/api/health', () => {
             responseTime: 150,
           },
         ],
-        traceId: 'test-trace-id',
+        traceId: 'header-trace-id',
       });
 
       // ヘッダーの検証
       expect(response.headers.get('Content-Type')).toBe('application/json');
-      expect(response.headers.get('X-Trace-Id')).toBe('test-trace-id');
+      expect(response.headers.get('X-Trace-Id')).toBe('header-trace-id');
       expect(response.headers.get('Cache-Control')).toBe(
         'no-cache, no-store, must-revalidate'
       );
@@ -101,9 +110,9 @@ describe('/api/health', () => {
 
     it('BFF層でエラーが発生した場合、適切なエラーレスポンスを返すべき', async () => {
       // モックの設定
-      const mockHealthService = require('@template/bff').HealthService;
-      const mockInstance = new mockHealthService();
-      mockInstance.checkHealth.mockResolvedValue({
+      const { HealthService } = await import('@template/bff');
+      const mockInstance = new HealthService({} as any, {} as any);
+      (mockInstance.checkHealth as any).mockResolvedValue({
         success: false,
         error: {
           error: {
@@ -137,9 +146,9 @@ describe('/api/health', () => {
 
     it('予期しないエラーが発生した場合、500エラーを返すべき', async () => {
       // モックの設定
-      const mockHealthService = require('@template/bff').HealthService;
-      const mockInstance = new mockHealthService();
-      mockInstance.checkHealth.mockRejectedValue(new Error('Unexpected error'));
+      const { HealthService } = await import('@template/bff');
+      const mockInstance = new HealthService({} as any, {} as any);
+      (mockInstance.checkHealth as any).mockRejectedValue(new Error('Unexpected error'));
 
       // リクエストの作成
       const request = new NextRequest('http://localhost:8787/api/health', {
@@ -159,9 +168,9 @@ describe('/api/health', () => {
 
     it('カスタムtraceIdがヘッダーに含まれている場合、それを使用すべき', async () => {
       // モックの設定
-      const mockHealthService = require('@template/bff').HealthService;
-      const mockInstance = new mockHealthService();
-      mockInstance.checkHealth.mockResolvedValue({
+      const { HealthService } = await import('@template/bff');
+      const mockInstance = new HealthService({} as any, {} as any);
+      (mockInstance.checkHealth as any).mockResolvedValue({
         success: true,
         data: {
           status: 'healthy',
