@@ -1,0 +1,136 @@
+openapi: 3.0.3
+info:
+  title: Template Beta Cloudflare Supabase API
+  description: Next.js + OpenNext + Cloudflare Workers + Supabase テンプレートのAPI仕様
+  version: 1.0.0
+  contact:
+    name: Template Beta API Support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8787
+    description: ローカル開発環境
+  - url: https://template-beta.example.com
+    description: 本番環境
+
+paths:
+  /api/health:
+    get:
+      summary: システムヘルスチェック
+      description: システム全体の稼働状況とバックエンドサービスの接続状況を確認します
+      operationId: getHealth
+      tags:
+        - Health
+      security: []  # パブリックエンドポイント（認証不要）
+      responses:
+        '200':
+          description: ヘルスチェック結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - services
+        - traceId
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          description: システム全体のステータス
+          example: healthy
+        timestamp:
+          type: string
+          format: date-time
+          description: ヘルスチェック実行時刻
+          example: "2024-01-01T00:00:00.000Z"
+        services:
+          type: array
+          description: 各サービスの詳細ステータス
+          items:
+            $ref: '#/components/schemas/ServiceHealth'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: "trace-123e4567-e89b-12d3-a456-426614174000"
+
+    ServiceHealth:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+          description: サービス名
+          example: "supabase"
+        status:
+          type: string
+          enum: [up, down]
+          description: サービスの稼働状況
+          example: up
+        responseTime:
+          type: number
+          description: レスポンス時間（ミリ秒）
+          minimum: 0
+          example: 150
+        error:
+          type: string
+          description: エラーメッセージ（エラー時のみ）
+          example: "Connection timeout"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - traceId
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: "trace-123e4567-e89b-12d3-a456-426614174000"
+
+    ErrorDetail:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: "INTERNAL_SERVER_ERROR"
+        message:
+          type: string
+          description: エラーメッセージ
+          example: "Internal server error occurred"
+        details:
+          type: object
+          description: エラー詳細情報（オプション）
+          additionalProperties: true
+
+tags:
+  - name: Health
+    description: システムヘルスチェック関連のAPI

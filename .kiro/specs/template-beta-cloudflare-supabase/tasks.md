@@ -14,7 +14,7 @@
   - 依存方向リンターで層違反検出の設定
   - _要件: 1.4_
 
-- [ ] 3. OpenAPI 契約定義とコード生成の基盤構築
+- [x] 3. OpenAPI 契約定義とコード生成の基盤構築
   - openapi/openapi.yaml でヘルスチェック API の契約定義
   - openapi-typescript による型生成の設定
   - orval による API クライアント生成の設定

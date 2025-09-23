@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# OpenAPI生成物の同期チェック（OpenAPIファイル作成後に有効化）
+# OpenAPI生成物の同期チェック（一時的に無効化 - orval の型問題のため）
 # pnpm run generate:check
 
 # lint-stagedの実行

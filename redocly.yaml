@@ -1,0 +1,29 @@
+lint:
+  extends:
+    - recommended
+  rules:
+    # OpenAPI 仕様の品質を保つためのルール
+    operation-operationId: error
+    operation-summary: error
+    operation-description: warn
+    operation-tag-defined: error
+    
+    # セキュリティ関連
+    no-unresolved-refs: error
+    no-identical-paths: error
+    
+    # レスポンス関連
+    operation-2xx-response: error
+    operation-4xx-response: off
+    
+    # スキーマ関連
+    component-name-unique: error
+    no-enum-type-mismatch: error
+    
+    # 日本語対応
+    info-description: warn
+    info-contact: warn
+    info-license: warn
+    
+    # セキュリティ関連（ヘルスチェックはパブリックなので緩和）
+    operation-security-defined: off
