@@ -1,6 +1,21 @@
 module.exports = {
-  extends: ['../../.eslintrc.js'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+  },
+  plugins: ['prettier'],
+  extends: [
+    'eslint:recommended',
+    'prettier',
+  ],
   rules: {
+    // Prettier統合
+    'prettier/prettier': 'error',
+
+    // 基本的なルール
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+
     // Core層では外部I/Oライブラリの直接利用を禁止
     'no-restricted-imports': [
       'error',
@@ -27,5 +42,9 @@ module.exports = {
         ],
       },
     ],
+  },
+  env: {
+    node: true,
+    es2022: true,
   },
 };
