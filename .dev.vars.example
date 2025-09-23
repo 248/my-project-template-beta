@@ -1,22 +1,32 @@
-# Cloudflare Workers環境変数テンプレート
+# ローカル開発環境用の環境変数テンプレート
 # このファイルをコピーして .dev.vars を作成し、実際の値を設定してください
+# .dev.vars は .gitignore に含まれているため、機密情報を安全に管理できます
 
-# バックエンドモード設定
+# アプリケーション設定
+NODE_ENV=development
 BACKEND_MODE=monolith
+NEXT_PUBLIC_APP_URL=http://localhost:8787
 
 # Supabase設定
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# アプリケーション設定
-NEXT_PUBLIC_APP_URL=http://localhost:8787
-
-# ログレベル設定
+# ログ設定
 LOG_LEVEL=info
+PINO_LOG_LEVEL=info
 
-# タイムアウト設定（ミリ秒）
+# パフォーマンス設定
 DEFAULT_TIMEOUT_MS=5000
+HEALTH_CHECK_TIMEOUT_MS=3000
 
-# リトライ設定
-MAX_RETRY_ATTEMPTS=2
+# 開発用設定
+ENABLE_PERFORMANCE_LOGGING=true
+ENABLE_DEBUG_LOGGING=true
+
+# ENV優先順位の説明:
+# 1. CI環境変数 (GitHub Actions secrets)
+# 2. wrangler secret (本番/プレビュー環境)
+# 3. .dev.vars (ローカル開発環境)
+# 4. process.env (システム環境変数)
+# 5. wrangler.toml [vars] (デフォルト値)

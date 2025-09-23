@@ -7,8 +7,10 @@ import {
   AdapterFactory,
   generateTraceId,
   extractTraceIdFromHeaders,
+  isMonolithMode,
+  validateEnvConfig,
 } from '@template/adapters';
-import { HealthService } from '@template/bff';
+import { HealthService, ApiClientAdapter } from '@template/bff';
 import { CoreHealthService } from '@template/core';
 import type { HealthResponse, ErrorResponse } from '@template/generated';
 import { NextRequest, NextResponse } from 'next/server';
@@ -26,9 +28,26 @@ const RequestHeadersSchema = z.object({
  * ヘルスチェックサービスのインスタンス（シングルトン）
  */
 let healthServiceInstance: HealthService | null = null;
+let apiClientInstance: ApiClientAdapter | null = null;
 
 /**
- * ヘルスチェックサービスを取得または作成
+ * 環境設定の初期化（一度だけ実行）
+ */
+let envValidated = false;
+function ensureEnvValidated(): void {
+  if (!envValidated) {
+    try {
+      validateEnvConfig();
+      envValidated = true;
+    } catch (error) {
+      console.error('Environment validation failed:', error);
+      throw error;
+    }
+  }
+}
+
+/**
+ * ヘルスチェックサービスを取得または作成（monolithモード用）
  */
 function getHealthService(): HealthService {
   if (!healthServiceInstance) {
@@ -50,6 +69,19 @@ function getHealthService(): HealthService {
   }
 
   return healthServiceInstance;
+}
+
+/**
+ * APIクライアントを取得または作成（serviceモード用）
+ */
+function getApiClient(): ApiClientAdapter {
+  if (!apiClientInstance) {
+    apiClientInstance = new ApiClientAdapter({
+      timeout: 5000, // 5秒タイムアウト
+    });
+  }
+
+  return apiClientInstance;
 }
 
 /**
@@ -136,6 +168,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   let traceId: string;
 
   try {
+    // 環境設定の検証
+    ensureEnvValidated();
+
     // traceIdを取得
     traceId = getTraceIdFromRequest(request);
 
@@ -148,11 +183,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       console.warn('Request headers validation warning:', validationError);
     }
 
-    // ヘルスチェックサービスを取得
-    const healthService = getHealthService();
+    // BACKEND_MODEに応じてヘルスチェックを実行
+    let result: any;
 
-    // ヘルスチェックを実行
-    const result = await healthService.checkHealth(traceId);
+    if (isMonolithMode()) {
+      // monolithモード: 直接BFFサービス呼び出し
+      const healthService = getHealthService();
+      result = await healthService.checkHealth(traceId);
+    } else {
+      // serviceモード: APIクライアント経由
+      const apiClient = getApiClient();
+      const healthData = await apiClient.getHealth();
+
+      // BFFサービスと同じ形式に変換
+      result = {
+        success: true,
+        data: healthData,
+      };
+    }
 
     if (result.success) {
       // 成功時のパフォーマンスログ

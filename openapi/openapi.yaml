@@ -23,7 +23,7 @@ paths:
       operationId: getHealth
       tags:
         - Health
-      security: []  # パブリックエンドポイント（認証不要）
+      security: [] # パブリックエンドポイント（認証不要）
       responses:
         '200':
           description: ヘルスチェック結果
@@ -63,7 +63,7 @@ components:
           type: string
           format: date-time
           description: ヘルスチェック実行時刻
-          example: "2024-01-01T00:00:00.000Z"
+          example: '2024-01-01T00:00:00.000Z'
         services:
           type: array
           description: 各サービスの詳細ステータス
@@ -72,7 +72,7 @@ components:
         traceId:
           type: string
           description: リクエストトレースID
-          example: "trace-123e4567-e89b-12d3-a456-426614174000"
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
 
     ServiceHealth:
       type: object
@@ -83,7 +83,7 @@ components:
         name:
           type: string
           description: サービス名
-          example: "supabase"
+          example: 'supabase'
         status:
           type: string
           enum: [up, down]
@@ -97,7 +97,7 @@ components:
         error:
           type: string
           description: エラーメッセージ（エラー時のみ）
-          example: "Connection timeout"
+          example: 'Connection timeout'
 
     ErrorResponse:
       type: object
@@ -110,7 +110,7 @@ components:
         traceId:
           type: string
           description: リクエストトレースID
-          example: "trace-123e4567-e89b-12d3-a456-426614174000"
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
 
     ErrorDetail:
       type: object
@@ -121,11 +121,11 @@ components:
         code:
           type: string
           description: エラーコード
-          example: "INTERNAL_SERVER_ERROR"
+          example: 'INTERNAL_SERVER_ERROR'
         message:
           type: string
           description: エラーメッセージ
-          example: "Internal server error occurred"
+          example: 'Internal server error occurred'
         details:
           type: object
           description: エラー詳細情報（オプション）

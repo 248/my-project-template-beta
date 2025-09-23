@@ -15,6 +15,17 @@ export type {
 export { ConfigAdapter } from './config/config-adapter';
 export type { EnvConfig, RetryPolicy } from './config/config-adapter';
 
+// Environment configuration
+export {
+  getEnvConfig,
+  isDevelopment,
+  isProduction,
+  isMonolithMode,
+  isServiceMode,
+  validateEnvConfig,
+} from './config/env';
+export type { BackendMode } from './config/env';
+
 // Factory
 export { AdapterFactory } from './adapter-factory';
 

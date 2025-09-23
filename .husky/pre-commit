@@ -1,5 +1,5 @@
-# OpenAPI生成物の同期チェック（一時的に無効化 - orval の型問題のため）
-# pnpm run generate:check
+# OpenAPI生成物の同期チェック
+pnpm run generate:check
 
 # lint-stagedの実行
 pnpm run pre-commit

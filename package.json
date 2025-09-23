@@ -8,8 +8,11 @@
   },
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "pnpm run generate:check && wrangler dev",
+    "dev": "pnpm run generate:check && wrangler dev --env development",
+    "dev:monolith": "BACKEND_MODE=monolith pnpm dev",
+    "dev:service": "BACKEND_MODE=service pnpm dev",
     "build": "pnpm run generate && pnpm run build:packages && pnpm run build:web",
+    "build:dev": "pnpm run generate && pnpm run build:packages && pnpm --filter web build",
     "build:packages": "pnpm --filter './packages/*' build",
     "build:web": "pnpm --filter web build",
     "generate": "pnpm run generate:types && pnpm run generate:client",

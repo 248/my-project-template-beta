@@ -79,7 +79,7 @@
   - **先送り問題**: テスト修正は後続のテストフェーズ（タスク12）で対応
   - _要件: 2.1_
 
-- [ ] 10. Cloudflare Workers 設定とローカル開発環境
+- [x] 10. Cloudflare Workers 設定とローカル開発環境
   - wrangler.toml の設定
   - .dev.vars でローカル環境変数管理と .dev.vars.example の配布
   - BACKEND_MODE 環境変数による切替機能（service モードで/api/health のみ外部呼び先接続の最小疎通含む）
@@ -87,13 +87,20 @@
   - pnpm dev コマンドで wrangler dev + OpenAPI 生成チェック
   - _要件: 1.1, 9.1, 9.2_
 
-- [ ] 10.1. orval 型問題の解決と pre-commit フック有効化
+- [x] 10.1. orval 型問題の解決と pre-commit フック有効化
   - orval の customFetch mutator 設定を修正して型安全性を確保
   - 生成されたクライアントの型アサーション問題を解決（現在手動で `as HealthResponse` を追加）
   - .husky/pre-commit で generate:check を再有効化
   - lint-staged の全チェック（ESLint, Prettier, TypeScript, OpenAPI）を有効化
   - **先送り問題**: 現在 `packages/generated/src/client.ts` で手動型アサーションを使用
   - _要件: 6.2, 6.3_
+
+- [ ] 10.2. Kiro IDE自動修正後の問題修正
+  - Windows環境でのpackage.jsonコマンド互換性修正（cross-env使用）
+  - health/page.tsxのSSR問題修正（絶対URLでのAPI呼び出し）
+  - 型チェックとビルドの動作確認
+  - 開発環境での動作テスト
+  - _要件: 1.1, 9.1_
 
 - [ ] 11. CI/CD 基盤の構築
   - GitHub Actions ワークフローの作成

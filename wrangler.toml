@@ -1,0 +1,72 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "template-beta-cloudflare-supabase"
+main = "apps/web/server.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# ビルド設定
+[build]
+command = "pnpm run build"
+
+# 環境変数設定（デフォルト値）
+[vars]
+NODE_ENV = "production"
+BACKEND_MODE = "monolith"
+
+# 開発環境設定
+[env.development]
+name = "template-beta-cloudflare-supabase-dev"
+vars = { NODE_ENV = "development", BACKEND_MODE = "monolith" }
+
+# プレビュー環境設定
+[env.preview]
+name = "template-beta-cloudflare-supabase-preview"
+vars = { NODE_ENV = "production", BACKEND_MODE = "monolith" }
+
+# 本番環境設定
+[env.production]
+name = "template-beta-cloudflare-supabase-prod"
+vars = { NODE_ENV = "production", BACKEND_MODE = "monolith" }
+
+# ローカル開発設定
+[dev]
+port = 8787
+local_protocol = "http"
+upstream_protocol = "https"
+# 開発時は .dev.vars から環境変数を読み込み
+vars = {}
+
+# 静的アセット設定
+[[assets]]
+bucket = "apps/web/.next/static"
+include = ["**/*"]
+exclude = []
+
+# 将来の拡張用設定（コメントアウト）
+
+# KVネームスペース
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "your-kv-namespace-id"
+# preview_id = "your-preview-kv-namespace-id"
+
+# Durable Objects
+# [[durable_objects.bindings]]
+# name = "SESSION_STORAGE"
+# class_name = "SessionStorage"
+
+# Service Bindings（serviceモード用）
+# [[services]]
+# binding = "BACKEND_API"
+# service = "backend-service"
+# environment = "production"
+
+# R2バケット（将来のファイルストレージ用）
+# [[r2_buckets]]
+# binding = "UPLOADS"
+# bucket_name = "template-uploads"
+
+# Queues（将来の非同期処理用）
+# [[queues.producers]]
+# binding = "TASK_QUEUE"
+# queue = "task-processing-queue"
