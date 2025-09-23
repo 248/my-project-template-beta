@@ -35,22 +35,22 @@
     "pre-commit": "lint-staged"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.5.0",
-    "wrangler": "^3.0.0",
-    "openapi-typescript": "^7.0.0",
-    "orval": "^6.0.0",
     "@redocly/cli": "^1.0.0",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
     "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-boundaries": "^4.0.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "prettier": "^3.0.0",
-    "lint-staged": "^15.0.0",
     "husky": "^9.0.0",
-    "eslint-plugin-boundaries": "^4.0.0"
+    "lint-staged": "^15.0.0",
+    "openapi-typescript": "^7.0.0",
+    "orval": "^6.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.5.0",
+    "wrangler": "^3.0.0"
   },
   "workspaces": [
     "apps/*",

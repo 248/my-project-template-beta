@@ -9,5 +9,5 @@
     "declarationMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["dist"]
 }
