@@ -1,0 +1,22 @@
+# Cloudflare Workers環境変数テンプレート
+# このファイルをコピーして .dev.vars を作成し、実際の値を設定してください
+
+# バックエンドモード設定
+BACKEND_MODE=monolith
+
+# Supabase設定
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# アプリケーション設定
+NEXT_PUBLIC_APP_URL=http://localhost:8787
+
+# ログレベル設定
+LOG_LEVEL=info
+
+# タイムアウト設定（ミリ秒）
+DEFAULT_TIMEOUT_MS=5000
+
+# リトライ設定
+MAX_RETRY_ATTEMPTS=2
