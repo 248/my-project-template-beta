@@ -4,6 +4,13 @@
     "composite": true,
     "noEmit": false,
     "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/app/*": ["./app/*"],
+      "@/lib/*": ["./lib/*"]
+    },
     "plugins": [
       {
         "name": "next"

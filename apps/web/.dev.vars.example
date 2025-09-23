@@ -1,0 +1,16 @@
+# ローカル開発用環境変数テンプレート
+# このファイルをコピーして .dev.vars を作成し、実際の値を設定してください
+
+# バックエンドモード（monolith | service）
+BACKEND_MODE=monolith
+
+# Supabase設定
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# ログレベル
+LOG_LEVEL=info
+
+# 開発環境フラグ
+NODE_ENV=development

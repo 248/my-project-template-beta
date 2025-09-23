@@ -39,7 +39,7 @@
   - DEFAULT_TIMEOUT_MS と RETRY_POLICY（指数バックオフ+ジッタ、最大 2 回）の設定
   - _要件: 2.3_
 
-- [ ] 6. BFF 層のヘルスチェックサービス実装
+- [x] 6. BFF 層のヘルスチェックサービス実装
   - HealthService クラスの実装
   - Core 層との連携と API 応答形式への変換
   - Zod バリデーションスキーマの実装
@@ -47,7 +47,7 @@
   - エラーハンドリングとログ出力の実装
   - _要件: 2.1, 2.2, 8.1_
 
-- [ ] 7. Next.js 基盤と OpenNext 設定
+- [x] 7. Next.js 基盤と OpenNext 設定
   - Next.js App Router プロジェクトの初期化
   - OpenNext 設定ファイルの作成
   - Tailwind CSS 設定と Atlassian Design 参考のベーススタイル
