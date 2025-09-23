@@ -22,21 +22,21 @@ export interface Logger {
    * @param _obj ログオブジェクト
    * @param _msg メッセージ
    */
-  info(_obj: any, _msg?: string): void;
+  info(_obj: Record<string, unknown>, _msg?: string): void;
 
   /**
    * エラーレベルのログを出力
    * @param _obj ログオブジェクト
    * @param _msg メッセージ
    */
-  error(_obj: any, _msg?: string): void;
+  error(_obj: Record<string, unknown>, _msg?: string): void;
 
   /**
    * 警告レベルのログを出力
    * @param _obj ログオブジェクト
    * @param _msg メッセージ
    */
-  warn(_obj: any, _msg?: string): void;
+  warn(_obj: Record<string, unknown>, _msg?: string): void;
 }
 
 /**

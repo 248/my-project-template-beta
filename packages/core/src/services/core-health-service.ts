@@ -3,13 +3,14 @@ import {
   HealthCheckConfig,
   DEFAULT_HEALTH_CHECK_CONFIG,
 } from '../interfaces/config';
+import { HealthServiceInterface } from '../interfaces/service-interfaces';
 import { HealthStatus, ServiceHealth, SystemStatus } from '../models/health';
 
 /**
  * Core層のヘルスチェックサービス
  * ビジネスロジックを担当し、外部依存はAdapterを通じて実行する
  */
-export class CoreHealthService {
+export class CoreHealthService implements HealthServiceInterface {
   private readonly config: HealthCheckConfig;
 
   constructor(

@@ -80,7 +80,9 @@ describe('/api/health Service モード', () => {
       // APIクライアントのモック設定（エラー）
       const { ApiClientAdapter } = await import('@template/bff');
       const mockApiClient = new ApiClientAdapter({});
-      (mockApiClient.getHealth as any).mockRejectedValue(new Error('External service unavailable'));
+      (mockApiClient.getHealth as any).mockRejectedValue(
+        new Error('External service unavailable')
+      );
 
       // リクエストの作成
       const request = new NextRequest('http://localhost:8787/api/health', {
@@ -107,9 +109,10 @@ describe('/api/health Service モード', () => {
       const { ApiClientAdapter } = await import('@template/bff');
       const mockApiClient = new ApiClientAdapter({});
       (mockApiClient.getHealth as any).mockImplementation(
-        () => new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Request timeout')), 100)
-        )
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), 100)
+          )
       );
 
       // リクエストの作成
@@ -157,20 +160,19 @@ describe('/api/health Service モード', () => {
         // Service モードをテスト
         process.env.BACKEND_MODE = 'service';
         const { isMonolithMode } = await import('@template/adapters');
-        
+
         // モック関数をリセットして新しい動作を設定
         (isMonolithMode as any).mockReturnValue(false);
-        
+
         let result = (isMonolithMode as any)();
         expect(result).toBe(false);
 
         // Monolith モードをテスト
         process.env.BACKEND_MODE = 'monolith';
         (isMonolithMode as any).mockReturnValue(true);
-        
+
         result = (isMonolithMode as any)();
         expect(result).toBe(true);
-
       } finally {
         // 環境変数を復元
         if (originalBackendMode !== undefined) {
@@ -188,13 +190,12 @@ describe('/api/health Service モード', () => {
 
       try {
         const { isMonolithMode } = await import('@template/adapters');
-        
+
         // デフォルトでmonolithモードを想定
         (isMonolithMode as any).mockReturnValue(true);
-        
+
         const result = (isMonolithMode as any)();
         expect(result).toBe(true);
-
       } finally {
         // 環境変数を復元
         if (originalBackendMode !== undefined) {
@@ -218,7 +219,9 @@ describe('/api/health Service モード', () => {
       });
 
       // コンソールログのモック
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       // リクエストの作成
       const request = new NextRequest('http://localhost:8787/api/health', {

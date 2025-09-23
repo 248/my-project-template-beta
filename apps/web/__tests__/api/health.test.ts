@@ -12,7 +12,7 @@ vi.mock('@template/bff', () => {
   const mockHealthService = {
     checkHealth: vi.fn(),
   };
-  
+
   return {
     HealthService: vi.fn().mockImplementation(() => mockHealthService),
     ApiClientAdapter: vi.fn().mockImplementation(() => ({
@@ -148,7 +148,9 @@ describe('/api/health', () => {
       // モックの設定
       const { HealthService } = await import('@template/bff');
       const mockInstance = new HealthService({} as any, {} as any);
-      (mockInstance.checkHealth as any).mockRejectedValue(new Error('Unexpected error'));
+      (mockInstance.checkHealth as any).mockRejectedValue(
+        new Error('Unexpected error')
+      );
 
       // リクエストの作成
       const request = new NextRequest('http://localhost:8787/api/health', {

@@ -16,7 +16,7 @@ export interface PerformanceMetrics {
   /** 操作名 */
   operation: string;
   /** 追加のメタデータ */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -58,7 +58,7 @@ export class PerformanceMonitor {
   async measure<T>(
     operation: string,
     fn: () => Promise<T>,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<{ result: T; metrics: PerformanceMetrics }> {
     const startTime = performance.now();
 
@@ -207,9 +207,9 @@ export const globalPerformanceMonitor = new PerformanceMonitor();
 /**
  * API呼び出しのパフォーマンス測定用ラッパー
  */
-export async function measureApiCall<T = any>(
+export async function measureApiCall<T = unknown>(
   url: string,
-  options?: any
+  options?: RequestInit
 ): Promise<{ response: Response; data: T; metrics: PerformanceMetrics }> {
   const operation = `api_${url.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
@@ -234,7 +234,7 @@ export async function measureApiCall<T = any>(
  * ヘルスチェックAPI専用の測定関数
  */
 export async function measureHealthCheck(): Promise<{
-  data: any;
+  data: unknown;
   metrics: PerformanceMetrics;
   isWithinTarget: boolean;
 }> {
@@ -278,7 +278,7 @@ export function logPerformanceStats(operation?: string): void {
     }
   } else {
     const allStats = globalPerformanceMonitor.getAllStats();
-    const formattedStats: Record<string, any> = {};
+    const formattedStats: Record<string, Record<string, string>> = {};
 
     for (const [op, stats] of Object.entries(allStats)) {
       formattedStats[op] = {

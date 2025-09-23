@@ -3,33 +3,51 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CoreHealthService } from '../services/core-health-service';
-import type { SupabaseAdapterInterface, LoggerInterface } from '../interfaces/adapter-interfaces';
 
-// モックアダプター
-const mockSupabaseAdapter: SupabaseAdapterInterface = {
+import type { CoreAdapters } from '../interfaces/adapters';
+import type {
+  SupabaseAdapterInterface,
+  LoggerInterface,
+} from '../interfaces/service-interfaces';
+import { CoreHealthService } from '../services/core-health-service';
+
+// 型安全なモックアダプター
+const createMockSupabaseAdapter = (): SupabaseAdapterInterface => ({
   checkConnection: vi.fn(),
   getConnectionInfo: vi.fn(),
-};
+});
 
-const mockLogger: LoggerInterface = {
-  info: vi.fn(),
-  error: vi.fn(),
-  warn: vi.fn(),
-  debug: vi.fn(),
-  withTraceId: vi.fn().mockReturnThis(),
+const createMockLogger = (): LoggerInterface => {
+  const mockChildLogger: LoggerInterface = {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    withTraceId: vi.fn(),
+  };
+
+  const mockLogger: LoggerInterface = {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    withTraceId: vi.fn().mockReturnValue(mockChildLogger),
+  };
+  return mockLogger;
 };
 
 describe('CoreHealthService', () => {
   let healthService: CoreHealthService;
-  let adapters: {
-    supabase: SupabaseAdapterInterface;
-    logger: LoggerInterface;
-  };
+  let mockSupabaseAdapter: SupabaseAdapterInterface;
+  let mockLogger: LoggerInterface;
+  let adapters: CoreAdapters;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
+    mockSupabaseAdapter = createMockSupabaseAdapter();
+    mockLogger = createMockLogger();
+
     adapters = {
       supabase: mockSupabaseAdapter,
       logger: mockLogger,
@@ -128,7 +146,7 @@ describe('CoreHealthService', () => {
     it('複数のサービスが混在する場合、degradedステータスを返すべき', async () => {
       // 将来の拡張を想定したテスト
       // 現在はSupabaseのみだが、将来的に他のサービスが追加された場合のテスト
-      
+
       // モックの設定（Supabaseは正常）
       mockSupabaseAdapter.checkConnection.mockResolvedValue(true);
 

@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { ClientErrorBoundary } from '@/components/ui/client-error-boundary';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-neutral-100 text-neutral-900">
         <div className="flex min-h-screen flex-col">
           <Header showAuthButton={true} />
-          <main className="flex-1">{children}</main>
+          <ClientErrorBoundary>
+            <main className="flex-1">{children}</main>
+          </ClientErrorBoundary>
           <Footer />
         </div>
       </body>

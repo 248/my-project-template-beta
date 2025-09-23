@@ -2,46 +2,57 @@
  * BFF層ヘルスチェックサービスの単体テスト
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { HealthService } from '../services/health-service';
-import type { CoreHealthServiceInterface, LoggerInterface } from '../interfaces/core-interfaces';
 import type { HealthStatus } from '@template/core';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// モックCore層サービス
-const mockCoreHealthService: CoreHealthServiceInterface = {
+import type {
+  CoreHealthServiceInterface,
+  LoggerInterface,
+} from '../interfaces/core-interfaces';
+import { HealthService } from '../services/health-service';
+
+// 型安全なモックCore層サービス
+const createMockCoreHealthService = (): CoreHealthServiceInterface => ({
   performHealthCheck: vi.fn(),
-  shouldCheckSupabase: vi.fn(),
-  determineOverallStatus: vi.fn(),
-};
+  getConfig: vi.fn(),
+});
 
-// モックLogger
-const mockLogger: LoggerInterface = {
-  info: vi.fn(),
-  error: vi.fn(),
-  warn: vi.fn(),
-  debug: vi.fn(),
-  withTraceId: vi.fn().mockReturnValue({
+// 型安全なモックLogger
+const createMockLogger = (): LoggerInterface => {
+  const mockChildLogger: LoggerInterface = {
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-  }),
+    withTraceId: vi.fn(),
+  };
+
+  const mockLogger: LoggerInterface = {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    withTraceId: vi.fn().mockReturnValue(mockChildLogger),
+  };
+
+  return mockLogger;
 };
 
 describe('HealthService', () => {
   let healthService: HealthService;
+  let mockCoreHealthService: CoreHealthServiceInterface;
+  let mockLogger: LoggerInterface;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    healthService = new HealthService(
-      mockCoreHealthService,
-      mockLogger,
-      {
-        timeoutMs: 1000,
-        operationName: 'test-health-check',
-      }
-    );
+
+    mockCoreHealthService = createMockCoreHealthService();
+    mockLogger = createMockLogger();
+
+    healthService = new HealthService(mockCoreHealthService, mockLogger, {
+      timeoutMs: 1000,
+      operationName: 'test-health-check',
+    });
   });
 
   describe('checkHealth', () => {
@@ -59,7 +70,9 @@ describe('HealthService', () => {
         ],
       };
 
-      mockCoreHealthService.performHealthCheck.mockResolvedValue(mockHealthStatus);
+      mockCoreHealthService.performHealthCheck.mockResolvedValue(
+        mockHealthStatus
+      );
 
       // ヘルスチェック実行
       const result = await healthService.checkHealth('test-trace-id');
@@ -137,7 +150,9 @@ describe('HealthService', () => {
         services: [],
       };
 
-      mockCoreHealthService.performHealthCheck.mockResolvedValue(mockHealthStatus);
+      mockCoreHealthService.performHealthCheck.mockResolvedValue(
+        mockHealthStatus
+      );
 
       // traceIdなしでヘルスチェック実行
       const result = await healthService.checkHealth();
@@ -158,7 +173,9 @@ describe('HealthService', () => {
         services: [],
       } as any;
 
-      mockCoreHealthService.performHealthCheck.mockResolvedValue(invalidHealthStatus);
+      mockCoreHealthService.performHealthCheck.mockResolvedValue(
+        invalidHealthStatus
+      );
 
       // ヘルスチェック実行
       const result = await healthService.checkHealth('test-trace-id');
@@ -167,7 +184,9 @@ describe('HealthService', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.error.code).toBe('HEALTH_CHECK_FAILED');
-        expect(result.error.error.message).toContain('Invalid health check response format');
+        expect(result.error.error.message).toContain(
+          'Invalid health check response format'
+        );
       }
     });
   });
@@ -181,7 +200,9 @@ describe('HealthService', () => {
         services: [],
       };
 
-      mockCoreHealthService.performHealthCheck.mockResolvedValue(mockHealthStatus);
+      mockCoreHealthService.performHealthCheck.mockResolvedValue(
+        mockHealthStatus
+      );
 
       // 新しいtraceIdでヘルスチェック実行
       const result = await healthService.checkHealthWithNewTrace();
@@ -225,7 +246,9 @@ describe('HealthService', () => {
         ],
       };
 
-      mockCoreHealthService.performHealthCheck.mockResolvedValue(mockHealthStatus);
+      mockCoreHealthService.performHealthCheck.mockResolvedValue(
+        mockHealthStatus
+      );
 
       const result = await healthService.checkHealth('test-trace-id');
 

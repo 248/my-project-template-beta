@@ -1,22 +1,21 @@
 /**
  * BFF層がCore層と連携するためのインターフェース定義
+ * Core層の統一インターフェースを再エクスポート
  */
 
-import type { HealthStatus } from '@template/core';
+import type {
+  HealthServiceInterface,
+  LoggerInterface as CoreLoggerInterface,
+} from '@template/core';
 
 /**
  * Core層のヘルスチェックサービスインターフェース
+ * @deprecated 統一インターフェースHealthServiceInterfaceを使用してください
  */
-export interface CoreHealthServiceInterface {
-  performHealthCheck(): Promise<HealthStatus>;
-}
+export interface CoreHealthServiceInterface extends HealthServiceInterface {}
 
 /**
  * ロガーインターフェース
+ * Core層の統一インターフェースを使用
  */
-export interface LoggerInterface {
-  info(obj: any, msg?: string): void;
-  error(obj: any, msg?: string): void;
-  warn(obj: any, msg?: string): void;
-  withTraceId(traceId: string): LoggerInterface;
-}
+export interface LoggerInterface extends CoreLoggerInterface {}
