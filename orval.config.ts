@@ -13,7 +13,10 @@ export default defineConfig({
       prettier: true,
     },
     hooks: {
-      afterAllFilesWrite: 'prettier --write',
+      afterAllFilesWrite: [
+        'node scripts/fix-generated-types.js',
+        'prettier --write',
+      ],
     },
   },
 });
