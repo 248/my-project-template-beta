@@ -18,14 +18,16 @@ export function isValidTraceId(traceId: string): boolean {
 /**
  * HTTPヘッダーからtraceIdを抽出
  */
-export function extractTraceIdFromHeaders(headers: Record<string, string | undefined>): string | undefined {
+export function extractTraceIdFromHeaders(
+  headers: Record<string, string | undefined>
+): string | undefined {
   // X-Trace-Id ヘッダーから取得を試行
   const traceId = headers['x-trace-id'] || headers['X-Trace-Id'];
-  
+
   if (traceId && isValidTraceId(traceId)) {
     return traceId;
   }
-  
+
   return undefined;
 }
 

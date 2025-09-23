@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  generateTraceId, 
-  isValidTraceId, 
-  extractTraceIdFromHeaders, 
-  createTraceHeaders 
+
+import {
+  generateTraceId,
+  isValidTraceId,
+  extractTraceIdFromHeaders,
+  createTraceHeaders,
 } from '../utils/trace-utils';
 
 describe('trace-utils', () => {
@@ -30,7 +31,7 @@ describe('trace-utils', () => {
     it('should return false for invalid trace ID - wrong length', () => {
       const shortTraceId = 'a1b2c3d4e5f6789012345678901234a';
       const longTraceId = 'a1b2c3d4e5f6789012345678901234abc';
-      
+
       expect(isValidTraceId(shortTraceId)).toBe(false);
       expect(isValidTraceId(longTraceId)).toBe(false);
     });

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { ConfigAdapter } from '../config/config-adapter';
 
 describe('ConfigAdapter', () => {

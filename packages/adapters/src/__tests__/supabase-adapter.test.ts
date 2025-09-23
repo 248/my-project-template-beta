@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { SupabaseAdapter, SupabaseConfig } from '../supabase/supabase-adapter';
 
 // Supabaseクライアントをモック
@@ -108,7 +109,9 @@ describe('SupabaseAdapter', () => {
 
       const result = await adapter.exchangeCodeForSession('auth-code');
 
-      expect(mockClient.auth.exchangeCodeForSession).toHaveBeenCalledWith('auth-code');
+      expect(mockClient.auth.exchangeCodeForSession).toHaveBeenCalledWith(
+        'auth-code'
+      );
       expect(result).toEqual(mockResponse);
     });
 

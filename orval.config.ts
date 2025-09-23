@@ -11,7 +11,6 @@ export default defineConfig({
       mock: false,
       clean: true,
       prettier: true,
-
     },
     hooks: {
       afterAllFilesWrite: 'prettier --write',

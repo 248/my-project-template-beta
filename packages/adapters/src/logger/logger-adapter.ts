@@ -2,24 +2,33 @@ import pino from 'pino';
 import { z } from 'zod';
 
 // ログレベル設定
-export const LogLevelSchema = z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']);
+export const LogLevelSchema = z.enum([
+  'trace',
+  'debug',
+  'info',
+  'warn',
+  'error',
+  'fatal',
+]);
 export type LogLevel = z.infer<typeof LogLevelSchema>;
 
 // Logger設定スキーマ
 export const LoggerConfigSchema = z.object({
   level: LogLevelSchema.default('info'),
   isDevelopment: z.boolean().default(false),
-  redactFields: z.array(z.string()).default([
-    'password',
-    'token',
-    'secret',
-    'key',
-    'authorization',
-    'cookie',
-    'session',
-    'apiKey',
-    'serviceRoleKey',
-  ]),
+  redactFields: z
+    .array(z.string())
+    .default([
+      'password',
+      'token',
+      'secret',
+      'key',
+      'authorization',
+      'cookie',
+      'session',
+      'apiKey',
+      'serviceRoleKey',
+    ]),
 });
 
 export type LoggerConfig = z.infer<typeof LoggerConfigSchema>;
@@ -50,7 +59,7 @@ export class LoggerAdapter {
       },
       timestamp: pino.stdTimeFunctions.isoTime,
       formatters: {
-        level: (label) => ({ level: label }),
+        level: label => ({ level: label }),
       },
     };
 

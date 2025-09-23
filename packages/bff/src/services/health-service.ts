@@ -3,10 +3,14 @@
  * Core層との連携とAPI応答形式への変換を担当
  */
 
-import { LoggerAdapter, generateTraceId } from '@template/adapters';
-import { CoreHealthService, HealthStatus } from '@template/core';
+import { generateTraceId } from '@template/adapters';
+import type { HealthStatus } from '@template/core';
 import type { HealthResponse } from '@template/generated';
 
+import {
+  CoreHealthServiceInterface,
+  LoggerInterface,
+} from '../interfaces/core-interfaces';
 import {
   HealthResponseSchema,
   HealthResponseData,
@@ -47,8 +51,8 @@ export class HealthService {
   private readonly config: Required<HealthServiceConfig>;
 
   constructor(
-    private readonly coreHealthService: CoreHealthService,
-    private readonly logger: LoggerAdapter,
+    private readonly coreHealthService: CoreHealthServiceInterface,
+    private readonly logger: LoggerInterface,
     config: HealthServiceConfig = {}
   ) {
     this.config = {

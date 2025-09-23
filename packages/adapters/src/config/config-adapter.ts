@@ -6,17 +6,21 @@ export const EnvConfigSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
-  
+
   // ログ設定
-  LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  
+  LOG_LEVEL: z
+    .enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])
+    .default('info'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+
   // タイムアウト・リトライ設定
   DEFAULT_TIMEOUT_MS: z.coerce.number().default(5000),
   MAX_RETRY_ATTEMPTS: z.coerce.number().default(2),
   RETRY_BASE_DELAY_MS: z.coerce.number().default(1000),
   RETRY_MAX_DELAY_MS: z.coerce.number().default(10000),
-  
+
   // バックエンドモード
   BACKEND_MODE: z.enum(['monolith', 'service']).default('monolith'),
 });
@@ -33,7 +37,7 @@ export interface RetryPolicy {
 
 export class ConfigAdapter {
   private config: EnvConfig;
-  
+
   constructor(env: Record<string, string | undefined> = process.env) {
     this.config = EnvConfigSchema.parse(env);
   }

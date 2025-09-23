@@ -2,8 +2,7 @@
  * BFF層のエラーハンドリングユーティリティ
  */
 
-import { LoggerAdapter } from '@template/adapters';
-
+import { LoggerInterface } from '../interfaces/core-interfaces';
 import { ErrorResponseSchema } from '../schemas/health-schemas';
 import {
   BFFError,
@@ -19,7 +18,7 @@ import {
  */
 export interface ErrorContext {
   traceId: string;
-  logger: LoggerAdapter;
+  logger: LoggerInterface;
   operation?: string;
 }
 

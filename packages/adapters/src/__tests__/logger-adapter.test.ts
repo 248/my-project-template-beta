@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { LoggerAdapter, LoggerConfig } from '../logger/logger-adapter';
 
 describe('LoggerAdapter', () => {
@@ -34,7 +35,7 @@ describe('LoggerAdapter', () => {
   describe('logging methods', () => {
     it('should have all logging methods', () => {
       const adapter = new LoggerAdapter();
-      
+
       expect(typeof adapter.trace).toBe('function');
       expect(typeof adapter.debug).toBe('function');
       expect(typeof adapter.info).toBe('function');
@@ -45,7 +46,7 @@ describe('LoggerAdapter', () => {
 
     it('should not throw when calling logging methods', () => {
       const adapter = new LoggerAdapter();
-      
+
       expect(() => adapter.trace('test message')).not.toThrow();
       expect(() => adapter.debug('debug message')).not.toThrow();
       expect(() => adapter.info('info message')).not.toThrow();
@@ -57,7 +58,7 @@ describe('LoggerAdapter', () => {
     it('should handle object and message parameters', () => {
       const adapter = new LoggerAdapter();
       const obj = { traceId: '123' };
-      
+
       expect(() => adapter.trace(obj, 'test message')).not.toThrow();
       expect(() => adapter.info(obj, 'info message')).not.toThrow();
     });
@@ -85,7 +86,7 @@ describe('LoggerAdapter', () => {
     it('should return pino instance', () => {
       const adapter = new LoggerAdapter();
       const pinoInstance = adapter.getPinoInstance();
-      
+
       expect(pinoInstance).toBeDefined();
       expect(typeof pinoInstance.info).toBe('function');
     });

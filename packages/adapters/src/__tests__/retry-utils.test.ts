@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { 
-  withRetry, 
-  withTimeout, 
-  RetryError, 
-  TimeoutError 
+
+import {
+  withRetry,
+  withTimeout,
+  RetryError,
+  TimeoutError,
 } from '../utils/retry-utils';
 
 describe('retry-utils', () => {
@@ -31,14 +32,18 @@ describe('retry-utils', () => {
       vi.advanceTimersByTime(1000);
 
       await expect(timeoutPromise).rejects.toThrow(TimeoutError);
-      await expect(timeoutPromise).rejects.toThrow('Operation timed out after 1000ms');
+      await expect(timeoutPromise).rejects.toThrow(
+        'Operation timed out after 1000ms'
+      );
     });
 
     it('should reject with original error when promise rejects within timeout', async () => {
       const error = new Error('Original error');
       const promise = Promise.reject(error);
 
-      await expect(withTimeout(promise, 1000)).rejects.toThrow('Original error');
+      await expect(withTimeout(promise, 1000)).rejects.toThrow(
+        'Original error'
+      );
     });
   });
 
@@ -59,7 +64,8 @@ describe('retry-utils', () => {
     });
 
     it('should retry on failure and eventually succeed', async () => {
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('First failure'))
         .mockRejectedValueOnce(new Error('Second failure'))
         .mockResolvedValue('success');
@@ -93,16 +99,20 @@ describe('retry-utils', () => {
       // リアルタイマーを使用してテスト
       vi.useRealTimers();
       await expect(withRetry(operation, options)).rejects.toThrow(RetryError);
-      await expect(withRetry(operation, options)).rejects.toThrow('Operation failed after 2 attempts');
+      await expect(withRetry(operation, options)).rejects.toThrow(
+        'Operation failed after 2 attempts'
+      );
       vi.useFakeTimers();
 
       expect(operation).toHaveBeenCalledTimes(4); // 2回のテスト実行で合計4回
     });
 
     it('should apply timeout when specified', async () => {
-      const operation = vi.fn().mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 200))
-      );
+      const operation = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(resolve, 200))
+        );
       const options = {
         maxAttempts: 1, // 1回だけ試行
         baseDelayMs: 10,
@@ -113,16 +123,18 @@ describe('retry-utils', () => {
 
       // リアルタイマーを使用してテスト
       vi.useRealTimers();
-      
+
       try {
         await withRetry(operation, options);
         expect.fail('Should have thrown an error');
       } catch (error) {
         // RetryErrorまたはTimeoutErrorのいずれかが投げられることを確認
         expect(error).toBeInstanceOf(Error);
-        expect(error.name === 'RetryError' || error.name === 'TimeoutError').toBe(true);
+        expect(
+          error.name === 'RetryError' || error.name === 'TimeoutError'
+        ).toBe(true);
       }
-      
+
       vi.useFakeTimers();
     });
   });
@@ -141,7 +153,7 @@ describe('retry-utils', () => {
       vi.useRealTimers();
       await expect(withRetry(operation, options)).rejects.toThrow(RetryError);
       vi.useFakeTimers();
-      
+
       expect(operation).toHaveBeenCalledTimes(3);
     });
 
@@ -158,7 +170,7 @@ describe('retry-utils', () => {
       vi.useRealTimers();
       await expect(withRetry(operation, options)).rejects.toThrow(RetryError);
       vi.useFakeTimers();
-      
+
       expect(operation).toHaveBeenCalledTimes(3);
     });
   });

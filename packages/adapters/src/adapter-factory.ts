@@ -13,12 +13,16 @@ export class AdapterFactory {
   constructor(env?: Record<string, string | undefined>) {
     // 設定を初期化
     this.configAdapter = new ConfigAdapter(env);
-    
+
     // ロガーを初期化
-    this.loggerAdapter = new LoggerAdapter(this.configAdapter.getLoggerConfig());
-    
+    this.loggerAdapter = new LoggerAdapter(
+      this.configAdapter.getLoggerConfig()
+    );
+
     // Supabaseアダプターを初期化
-    this.supabaseAdapter = new SupabaseAdapter(this.configAdapter.getSupabaseConfig());
+    this.supabaseAdapter = new SupabaseAdapter(
+      this.configAdapter.getSupabaseConfig()
+    );
   }
 
   /**
@@ -57,6 +61,26 @@ export class AdapterFactory {
       config: this.configAdapter,
       logger: this.loggerAdapter,
       supabase: this.supabaseAdapter,
+    };
+  }
+
+  /**
+   * デフォルト設定でアダプターを作成（静的メソッド）
+   */
+  static createAdapters(env?: Record<string, string | undefined>) {
+    const factory = new AdapterFactory(env);
+    const adapters = factory.getAllAdapters();
+
+    // Core層のインターフェースに合わせてSupabaseAdapterをラップ
+    return {
+      config: adapters.config,
+      logger: adapters.logger,
+      supabase: {
+        checkConnection: async () => {
+          const result = await adapters.supabase.checkConnection();
+          return result.isConnected;
+        },
+      },
     };
   }
 }

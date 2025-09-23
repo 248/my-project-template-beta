@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+
 import { AdapterFactory } from '../adapter-factory';
 import { ConfigAdapter } from '../config/config-adapter';
 import { LoggerAdapter } from '../logger/logger-adapter';
@@ -45,8 +46,12 @@ describe('AdapterFactory', () => {
 
     beforeEach(() => {
       mockConfigAdapter = {
-        getLoggerConfig: vi.fn().mockReturnValue({ level: 'info', isDevelopment: true }),
-        getSupabaseConfig: vi.fn().mockReturnValue({ url: 'test', anonKey: 'test' }),
+        getLoggerConfig: vi
+          .fn()
+          .mockReturnValue({ level: 'info', isDevelopment: true }),
+        getSupabaseConfig: vi
+          .fn()
+          .mockReturnValue({ url: 'test', anonKey: 'test' }),
       };
       mockLoggerAdapter = {
         withTraceId: vi.fn().mockReturnValue('child-logger'),

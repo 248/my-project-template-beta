@@ -32,7 +32,7 @@ export class SupabaseAdapter {
    */
   async checkConnection(): Promise<ConnectionCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       // 軽量なクエリでヘルスチェック
       // pg_stat_activity テーブルから1行取得（権限不要）
