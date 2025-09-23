@@ -16,11 +16,12 @@
 
 - [x] 3. OpenAPI 契約定義とコード生成の基盤構築
   - openapi/openapi.yaml でヘルスチェック API の契約定義
-  - openapi-typescript による型生成の設定
-  - orval による API クライアント生成の設定
+  - openapi-typescript による TypeScript 型生成設定
+  - orval による API クライアント生成設定
   - @redocly/cli による Lint と Breaking Change 検知設定
   - 生成コマンドと package.json スクリプトの設定
-  - **TODO: OpenAPI作成後、.husky/pre-commit の generate:check を再有効化**
+  - .eslintignore で生成ファイルを除外設定
+  - **注意: orval の型アサーション問題により、現在 pre-commit フックは一時的に無効化**
   - _要件: 6.1, 6.2, 6.3_
 
 - [ ] 4. Core 層のヘルスチェックドメインロジック実装
@@ -81,6 +82,13 @@
   - pnpm dev コマンドで wrangler dev + OpenAPI 生成チェック
   - _要件: 1.1, 9.1, 9.2_
 
+- [ ] 10.1. orval 型問題の解決と pre-commit フック有効化
+  - orval の customFetch mutator 設定を修正して型安全性を確保
+  - 生成されたクライアントの型アサーション問題を解決
+  - .husky/pre-commit で generate:check を再有効化
+  - lint-staged の全チェック（ESLint, Prettier, TypeScript, OpenAPI）を有効化
+  - _要件: 6.2, 6.3_
+
 - [ ] 11. CI/CD 基盤の構築
   - GitHub Actions ワークフローの作成
   - BACKEND_MODE=monolith|service の両方でのビルド・テスト
@@ -88,6 +96,7 @@
   - 生成後 git diff --exit-code 失敗による契約 → 生成物ズレの自動検知
   - Wrangler によるデプロイ設定と wrangler secret 投入手順
   - PR 環境（preview）/本番（production）の切替基準とロールバック手順（直前タグ再デプロイ）
+  - **TODO: orval の型問題解決後、.husky/pre-commit の lint-staged を再有効化**
   - _要件: 3.1, 3.2, 3.3_
 
 - [ ] 12. フェーズ 1 テストの実装
