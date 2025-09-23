@@ -12,6 +12,10 @@ command = "pnpm run build"
 [vars]
 NODE_ENV = "production"
 BACKEND_MODE = "monolith"
+# Supabase設定は wrangler secret で管理
+# NEXT_PUBLIC_SUPABASE_URL = "https://your-project.supabase.co"
+# NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-anon-key"
+# SUPABASE_SERVICE_ROLE_KEY = "your-service-role-key"
 
 # 開発環境設定
 [env.development]

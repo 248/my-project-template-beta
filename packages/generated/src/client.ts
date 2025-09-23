@@ -6,7 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
-  HealthResponse
+  AuthCallback200,
+  AuthCallbackParams,
+  AuthLoginParams,
+  AuthResponse,
+  HealthResponse,
+  LogoutResponse
 } from './models'
 
 /**
@@ -34,6 +39,114 @@ export const getHealth = async ( options?: RequestInit): Promise<getHealthRespon
 
   )
   const data = await res.json() as HealthResponse
+
+  return { status: res.status, data }
+}
+
+
+/**
+ * 指定されたプロバイダーでOAuth認証を開始します
+ * @summary OAuth認証開始
+ */
+export type authLoginResponse = {
+  data: AuthResponse;
+  status: number;
+}
+
+export const getAuthLoginUrl = (params: AuthLoginParams,) => {
+
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value === null) {
+      normalizedParams.append(key, 'null');
+    } else if (value !== undefined) {
+      normalizedParams.append(key, value.toString());
+    }
+  });
+
+  return `/auth/login?${normalizedParams.toString()}`
+}
+
+export const authLogin = async (params: AuthLoginParams, options?: RequestInit): Promise<authLoginResponse> => {
+  const res = await fetch(getAuthLoginUrl(params),
+  {      
+    ...options,
+    method: 'POST'
+    
+  }
+
+  )
+  const data = await res.json() as AuthResponse
+
+  return { status: res.status, data }
+}
+
+
+/**
+ * OAuth認証プロバイダーからのコールバックを処理します
+ * @summary OAuth認証コールバック
+ */
+export type authCallbackResponse = {
+  data: AuthCallback200;
+  status: number;
+}
+
+export const getAuthCallbackUrl = (params: AuthCallbackParams,) => {
+
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value === null) {
+      normalizedParams.append(key, 'null');
+    } else if (value !== undefined) {
+      normalizedParams.append(key, value.toString());
+    }
+  });
+
+  return `/auth/callback?${normalizedParams.toString()}`
+}
+
+export const authCallback = async (params: AuthCallbackParams, options?: RequestInit): Promise<authCallbackResponse> => {
+  const res = await fetch(getAuthCallbackUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+  }
+
+  )
+  const data = await res.json() as AuthCallback200
+
+  return { status: res.status, data }
+}
+
+
+/**
+ * 現在のセッションを終了します
+ * @summary ログアウト
+ */
+export type authLogoutResponse = {
+  data: LogoutResponse;
+  status: number;
+}
+
+export const getAuthLogoutUrl = () => {
+
+
+  return `/auth/logout`
+}
+
+export const authLogout = async ( options?: RequestInit): Promise<authLogoutResponse> => {
+  const res = await fetch(getAuthLogoutUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    
+  }
+
+  )
+  const data = await res.json() as LogoutResponse
 
   return { status: res.status, data }
 }

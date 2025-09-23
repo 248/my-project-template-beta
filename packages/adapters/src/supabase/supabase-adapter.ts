@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { z } from 'zod';
 
 // 設定スキーマ
@@ -24,6 +25,19 @@ export class SupabaseAdapter {
   constructor(config: SupabaseConfig) {
     this.config = SupabaseConfigSchema.parse(config);
     this.client = createClient(this.config.url, this.config.anonKey);
+  }
+
+  /**
+   * サーバーサイド用のSupabaseクライアントを作成
+   * SSR環境でのCookie管理に対応
+   */
+  createServerClient(cookieStore: {
+    getAll(): Array<{ name: string; value: string }>;
+    setAll(cookies: Array<{ name: string; value: string; options?: any }>): void;
+  }) {
+    return createServerClient(this.config.url, this.config.anonKey, {
+      cookies: cookieStore,
+    });
   }
 
   /**

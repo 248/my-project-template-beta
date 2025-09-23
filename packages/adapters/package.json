@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "@supabase/ssr": "^0.5.0",
     "pino": "^8.0.0",
     "zod": "^3.22.0"
   },
