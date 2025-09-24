@@ -77,7 +77,7 @@ async function performHealthCheck(): Promise<{
   const startTime = performance.now();
 
   try {
-    const response = await fetch('http://localhost:3000/api/health', {
+    const response = await fetch('http://localhost:8787/api/health', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -153,7 +153,7 @@ describe('ヘルスチェックAPI パフォーマンステスト', () => {
   beforeAll(async () => {
     // サーバーが起動していることを確認
     try {
-      const response = await fetch('http://localhost:3000/api/health');
+      const response = await fetch('http://localhost:8787/api/health');
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`);
       }
@@ -167,7 +167,7 @@ describe('ヘルスチェックAPI パフォーマンステスト', () => {
   afterAll(async () => {
     // パフォーマンス統計をリセット（テスト後のクリーンアップ）
     try {
-      await fetch('http://localhost:3000/api/health/performance', {
+      await fetch('http://localhost:8787/api/health/performance', {
         method: 'DELETE',
       });
     } catch (error) {
@@ -250,7 +250,7 @@ describe('ヘルスチェックAPI パフォーマンステスト', () => {
   it('パフォーマンス統計エンドポイントが動作すること', async () => {
     // 統計を取得
     const response = await fetch(
-      'http://localhost:3000/api/health/performance'
+      'http://localhost:8787/api/health/performance'
     );
     expect(response.ok).toBe(true);
 

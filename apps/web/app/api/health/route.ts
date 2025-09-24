@@ -172,7 +172,9 @@ function createSuccessResponse(
  * システムヘルスチェックエンドポイント
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  let traceId: string;
+  // traceIdを最初に取得（エラーハンドリングで必要）
+  const traceId = getTraceIdFromRequest(request);
+
   let performanceMonitor:
     | import('@template/adapters').PerformanceMonitorInterface
     | undefined;
@@ -183,9 +185,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // 環境設定の検証
     ensureEnvValidated();
-
-    // traceIdを取得
-    traceId = getTraceIdFromRequest(request);
 
     // パフォーマンス監視を取得
     const adapters = AdapterFactory.createAdapters();
@@ -253,8 +252,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
   } catch (error) {
-    // 予期しないエラー
-    const errorTraceId = traceId! || generateTraceId();
+    // 予期しないエラー（traceIdは既に初期化済み）
 
     // パフォーマンス測定終了（システムエラー）
     measurement?.endWithError(
@@ -265,7 +263,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
     );
 
-    return createErrorResponse(error, errorTraceId, 500);
+    return createErrorResponse(error, traceId, 500);
   }
 }
 

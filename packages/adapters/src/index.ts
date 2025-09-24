@@ -17,7 +17,11 @@ export type {
 } from './interfaces/logger-interface';
 
 export { ConfigAdapter } from './config/config-adapter';
-export type { EnvConfig, RetryPolicy } from './config/config-adapter';
+export type {
+  EnvConfig,
+  RetryPolicy,
+  BackendMode,
+} from './config/config-adapter';
 
 export { PerformanceMonitor } from './performance/performance-monitor';
 export type {
@@ -27,7 +31,7 @@ export type {
   PerformanceMeasurementInterface,
 } from './interfaces/performance-interface';
 
-// Environment configuration
+// Environment configuration (便利関数)
 export {
   getEnvConfig,
   isDevelopment,
@@ -35,8 +39,7 @@ export {
   isMonolithMode,
   isServiceMode,
   validateEnvConfig,
-} from './config/env';
-export type { BackendMode } from './config/env';
+} from './config/config-adapter';
 
 // Factory
 export { AdapterFactory } from './adapter-factory';
