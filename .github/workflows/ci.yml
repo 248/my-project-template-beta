@@ -195,3 +195,27 @@ jobs:
           else
             echo "✅ No high-risk vulnerabilities found"
           fi
+
+  # Renovate PR用の自動マージチェック
+  renovate-auto-merge:
+    name: Renovate Auto-merge Check
+    runs-on: ubuntu-latest
+    if: github.actor == 'renovate[bot]' && github.event_name == 'pull_request'
+    needs:
+      [openapi-lint, generate-check, lint-and-format, build-and-test, security]
+    steps:
+      - name: Check if PR is ready for auto-merge
+        run: |
+          echo "✅ All checks passed for Renovate PR"
+          echo "PR is ready for auto-merge (if configured)"
+
+      - name: Add auto-merge label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['auto-merge-ready']
+            });

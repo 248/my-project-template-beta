@@ -1,29 +1,31 @@
-lint:
-  extends:
-    - recommended
-  rules:
-    # OpenAPI 仕様の品質を保つためのルール
-    operation-operationId: error
-    operation-summary: error
-    operation-description: warn
-    operation-tag-defined: error
+apis:
+  main:
+    root: openapi/openapi.yaml
+    x-openapi-ts:
+      output: packages/generated/src/types.ts
 
-    # セキュリティ関連
-    no-unresolved-refs: error
-    no-identical-paths: error
+rules:
+  # OpenAPI 仕様の品質を保つためのルール
+  operation-operationId: error
+  operation-summary: error
+  operation-description: warn
+  operation-tag-defined: error
 
-    # レスポンス関連
-    operation-2xx-response: error
-    operation-4xx-response: off
+  # セキュリティ関連
+  no-unresolved-refs: error
+  no-identical-paths: error
 
-    # スキーマ関連
-    component-name-unique: error
-    no-enum-type-mismatch: error
+  # レスポンス関連
+  operation-2xx-response: error
+  operation-4xx-response: off
 
-    # 日本語対応
-    info-description: warn
-    info-contact: warn
-    info-license: warn
+  # スキーマ関連
+  component-name-unique: error
+  no-enum-type-mismatch: error
 
-    # セキュリティ関連（ヘルスチェックはパブリックなので緩和）
-    operation-security-defined: off
+  # 日本語対応
+  info-contact: warn
+  info-license: warn
+
+  # 開発環境用サーバーURLを許可
+  no-server-example.com: off

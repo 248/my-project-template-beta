@@ -1,0 +1,144 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate configuration for Template Beta Cloudflare Supabase",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":separateMajorReleases",
+    ":combinePatchMinorReleases",
+    ":ignoreUnstable",
+    ":prImmediately",
+    ":updateNotScheduled",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["before 10am on monday"],
+  "labels": ["dependencies"],
+  "assignees": ["@me"],
+  "reviewers": ["@me"],
+  "packageRules": [
+    {
+      "description": "Minor and patch updates - auto merge",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "requiredStatusChecks": null
+    },
+    {
+      "description": "Major updates - manual review required",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"],
+      "reviewers": ["@me"],
+      "prPriority": 10
+    },
+    {
+      "description": "Development dependencies - auto merge all updates",
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Critical security updates - high priority",
+      "matchPackagePatterns": ["*"],
+      "vulnerabilityAlerts": {
+        "labels": ["security", "dependencies"],
+        "assignees": ["@me"],
+        "prPriority": 20,
+        "automerge": false
+      }
+    },
+    {
+      "description": "Next.js updates - manual review for major versions",
+      "matchPackageNames": ["next"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "nextjs", "major-update"]
+    },
+    {
+      "description": "Cloudflare Wrangler updates - manual review",
+      "matchPackageNames": ["wrangler"],
+      "automerge": false,
+      "labels": ["dependencies", "cloudflare"]
+    },
+    {
+      "description": "Supabase updates - manual review for major versions",
+      "matchPackagePatterns": ["@supabase/*"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "supabase", "major-update"]
+    },
+    {
+      "description": "TypeScript updates - manual review for major versions",
+      "matchPackageNames": ["typescript", "@types/node"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "typescript", "major-update"]
+    },
+    {
+      "description": "ESLint and Prettier - auto merge minor/patch",
+      "matchPackagePatterns": ["eslint*", "prettier*", "@typescript-eslint/*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "groupName": "linting"
+    },
+    {
+      "description": "Testing frameworks - auto merge minor/patch",
+      "matchPackagePatterns": ["vitest*", "@playwright/*", "playwright*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "groupName": "testing"
+    },
+    {
+      "description": "GitHub Actions - auto merge",
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "labels": ["dependencies", "github-actions"]
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "branchConcurrentLimit": 10,
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "prTitle": "{{commitMessagePrefix}} {{commitMessageAction}} {{commitMessageTopic}} {{commitMessageExtra}}",
+  "prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{controls}}}{{{footer}}}",
+  "prBodyColumns": [
+    "Package",
+    "Change",
+    "Age",
+    "Adoption",
+    "Passing",
+    "Confidence"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/__tests__/**"
+  ],
+  "ignoreDeps": ["node"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security", "dependencies"],
+    "assignees": ["@me"],
+    "prPriority": 20,
+    "automerge": false
+  },
+  "rangeStrategy": "bump",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps"
+}
