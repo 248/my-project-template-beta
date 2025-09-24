@@ -68,6 +68,7 @@ function getHealthService(): HealthService {
     healthServiceInstance = new HealthService(
       coreHealthService,
       adapters.logger,
+      adapters.performance,
       {
         timeoutMs: 5000, // 5秒タイムアウト
         operationName: 'api-health-check',
@@ -171,8 +172,13 @@ function createSuccessResponse(
  * システムヘルスチェックエンドポイント
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const startTime = performance.now();
   let traceId: string;
+  let performanceMonitor:
+    | import('@template/adapters').PerformanceMonitorInterface
+    | undefined;
+  let measurement:
+    | import('@template/adapters').PerformanceMeasurementInterface
+    | undefined;
 
   try {
     // 環境設定の検証
@@ -180,6 +186,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // traceIdを取得
     traceId = getTraceIdFromRequest(request);
+
+    // パフォーマンス監視を取得
+    const adapters = AdapterFactory.createAdapters();
+    performanceMonitor = adapters.performance;
+
+    // パフォーマンス測定開始
+    measurement = performanceMonitor?.startMeasurement('api-health-endpoint');
+    measurement?.addMetadata('traceId', traceId);
+    measurement?.addMetadata(
+      'userAgent',
+      request.headers.get('user-agent') || 'unknown'
+    );
 
     // リクエストヘッダーのバリデーション（オプション）
     try {
@@ -210,29 +228,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     if (result.success) {
-      // 成功時のパフォーマンスログ
-      const duration = performance.now() - startTime;
-      console.log(
-        `[Performance] Health check completed in ${duration.toFixed(2)}ms`,
-        {
-          traceId,
-          status: result.data.status,
-          servicesCount: result.data.services.length,
-        }
-      );
+      // パフォーマンス測定終了（成功）
+      measurement?.end({
+        status: result.data.status,
+        servicesCount: result.data.services.length,
+        httpStatus: 200,
+      });
 
       return createSuccessResponse(result.data, traceId);
     } else {
-      // BFF層でのエラー処理済み
-      const duration = performance.now() - startTime;
-      console.error(
-        `[Performance] Health check failed in ${duration.toFixed(2)}ms`,
-        {
-          traceId,
-          errorCode: result.error.error.code,
-          statusCode: result.statusCode,
-        }
-      );
+      // パフォーマンス測定終了（BFFエラー）
+      measurement?.endWithError(`BFF Error: ${result.error.error.code}`, {
+        errorCode: result.error.error.code,
+        statusCode: result.statusCode,
+        httpStatus: result.statusCode,
+      });
 
       return NextResponse.json(result.error, {
         status: result.statusCode,
@@ -244,15 +254,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
   } catch (error) {
     // 予期しないエラー
-    const duration = performance.now() - startTime;
     const errorTraceId = traceId! || generateTraceId();
 
-    console.error(
-      `[Performance] Health check error in ${duration.toFixed(2)}ms`,
+    // パフォーマンス測定終了（システムエラー）
+    measurement?.endWithError(
+      error instanceof Error ? error : new Error('Unknown error'),
       {
-        traceId: errorTraceId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
+        httpStatus: 500,
+        errorType: 'system_error',
       }
     );
 

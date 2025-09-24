@@ -1,6 +1,8 @@
 import pino from 'pino';
 import { z } from 'zod';
 
+import { LoggerInterface, LogContext } from '../interfaces/logger-interface';
+
 // ログレベル設定
 export const LogLevelSchema = z.enum([
   'trace',
@@ -16,32 +18,53 @@ export type LogLevel = z.infer<typeof LogLevelSchema>;
 export const LoggerConfigSchema = z.object({
   level: LogLevelSchema.default('info'),
   isDevelopment: z.boolean().default(false),
-  redactFields: z
-    .array(z.string())
-    .default([
-      'password',
-      'token',
-      'secret',
-      'key',
-      'authorization',
-      'cookie',
-      'session',
-      'apiKey',
-      'serviceRoleKey',
-    ]),
+  redactFields: z.array(z.string()).default([
+    // 認証・認可関連
+    'password',
+    'token',
+    'secret',
+    'key',
+    'authorization',
+    'cookie',
+    'session',
+    'apiKey',
+    'serviceRoleKey',
+    'accessToken',
+    'refreshToken',
+    'jwt',
+    'bearer',
+
+    // PII (個人識別情報)
+    'email',
+    'phone',
+    'phoneNumber',
+    'ssn',
+    'socialSecurityNumber',
+    'creditCard',
+    'cardNumber',
+    'cvv',
+    'address',
+    'zipCode',
+    'postalCode',
+
+    // Supabase関連
+    'supabaseKey',
+    'supabaseSecret',
+    'databaseUrl',
+    'connectionString',
+
+    // その他のセンシティブ情報
+    'privateKey',
+    'publicKey',
+    'signature',
+    'hash',
+    'salt',
+  ]),
 });
 
 export type LoggerConfig = z.infer<typeof LoggerConfigSchema>;
 
-// ログコンテキスト
-export interface LogContext {
-  traceId?: string;
-  userId?: string;
-  requestId?: string;
-  [key: string]: unknown;
-}
-
-export class LoggerAdapter {
+export class LoggerAdapter implements LoggerInterface {
   private pino: pino.Logger;
   private config: LoggerConfig;
 
@@ -60,6 +83,25 @@ export class LoggerAdapter {
       timestamp: pino.stdTimeFunctions.isoTime,
       formatters: {
         level: label => ({ level: label }),
+        log: object => {
+          // 構造化ログのためのフォーマット
+          const formatted = { ...object };
+
+          // traceIdを最上位に移動
+          if (formatted.traceId) {
+            const traceId = formatted.traceId;
+            delete formatted.traceId;
+            return { traceId, ...formatted };
+          }
+
+          return formatted;
+        },
+      },
+      base: {
+        // 基本情報を追加
+        service: 'template-beta-cloudflare-supabase',
+        version: process.env.npm_package_version || '0.1.0',
+        environment: process.env.NODE_ENV || 'development',
       },
     };
 

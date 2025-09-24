@@ -44,6 +44,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/health/performance:
+    get:
+      summary: パフォーマンス統計取得
+      description: システムのパフォーマンス統計情報を取得します
+      operationId: getPerformanceStats
+      tags:
+        - Health
+        - Performance
+      security: [] # パブリックエンドポイント（認証不要）
+      responses:
+        '200':
+          description: パフォーマンス統計
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceStatsResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: パフォーマンス統計リセット
+      description: パフォーマンス統計をリセットします
+      operationId: resetPerformanceStats
+      tags:
+        - Health
+        - Performance
+      security: [] # パブリックエンドポイント（認証不要）
+      parameters:
+        - name: operation
+          in: query
+          required: false
+          schema:
+            type: string
+          description: リセット対象の操作名（指定しない場合は全統計をリセット）
+          example: 'api-health-check'
+      responses:
+        '200':
+          description: リセット成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                  - traceId
+                  - timestamp
+                properties:
+                  message:
+                    type: string
+                    example: 'All performance statistics have been reset'
+                  traceId:
+                    type: string
+                    example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2024-01-01T00:00:00.000Z'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /auth/login:
     post:
       summary: OAuth認証開始
@@ -302,6 +369,105 @@ components:
           description: リクエストトレースID
           example: 'trace-123e4567-e89b-12d3-a456-426614174000'
 
+    PerformanceStatsResponse:
+      type: object
+      required:
+        - timestamp
+        - traceId
+        - stats
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: 統計取得時刻
+          example: '2024-01-01T00:00:00.000Z'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+        stats:
+          type: array
+          description: 操作別パフォーマンス統計
+          items:
+            $ref: '#/components/schemas/PerformanceStats'
+
+    PerformanceStats:
+      type: object
+      required:
+        - operation
+        - totalCount
+        - successCount
+        - errorCount
+        - successRate
+        - avgDuration
+        - minDuration
+        - maxDuration
+        - p50Duration
+        - p95Duration
+        - p99Duration
+        - lastUpdated
+      properties:
+        operation:
+          type: string
+          description: 操作名
+          example: 'api-health-check'
+        totalCount:
+          type: integer
+          description: 総実行回数
+          minimum: 0
+          example: 1000
+        successCount:
+          type: integer
+          description: 成功回数
+          minimum: 0
+          example: 995
+        errorCount:
+          type: integer
+          description: エラー回数
+          minimum: 0
+          example: 5
+        successRate:
+          type: number
+          description: 成功率（パーセント）
+          minimum: 0
+          maximum: 100
+          example: 99.5
+        avgDuration:
+          type: number
+          description: 平均実行時間（ミリ秒）
+          minimum: 0
+          example: 125.5
+        minDuration:
+          type: number
+          description: 最小実行時間（ミリ秒）
+          minimum: 0
+          example: 50.2
+        maxDuration:
+          type: number
+          description: 最大実行時間（ミリ秒）
+          minimum: 0
+          example: 500.8
+        p50Duration:
+          type: number
+          description: p50実行時間（ミリ秒）
+          minimum: 0
+          example: 120.3
+        p95Duration:
+          type: number
+          description: p95実行時間（ミリ秒）
+          minimum: 0
+          example: 250.7
+        p99Duration:
+          type: number
+          description: p99実行時間（ミリ秒）
+          minimum: 0
+          example: 400.1
+        lastUpdated:
+          type: string
+          format: date-time
+          description: 最終更新時刻
+          example: '2024-01-01T00:00:00.000Z'
+
   securitySchemes:
     cookieAuth:
       type: apiKey
@@ -312,5 +478,7 @@ components:
 tags:
   - name: Health
     description: システムヘルスチェック関連のAPI
+  - name: Performance
+    description: パフォーマンス監視関連のAPI
   - name: Authentication
     description: 認証・認可関連のAPI

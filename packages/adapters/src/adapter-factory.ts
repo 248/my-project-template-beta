@@ -1,5 +1,6 @@
 import { ConfigAdapter } from './config/config-adapter';
 import { LoggerAdapter } from './logger/logger-adapter';
+import { PerformanceMonitor } from './performance/performance-monitor';
 import { SupabaseAdapter } from './supabase/supabase-adapter';
 
 /**
@@ -9,6 +10,7 @@ export class AdapterFactory {
   private configAdapter: ConfigAdapter;
   private loggerAdapter: LoggerAdapter;
   private supabaseAdapter: SupabaseAdapter;
+  private performanceMonitor: PerformanceMonitor;
 
   constructor(env?: Record<string, string | undefined>) {
     // 設定を初期化
@@ -18,6 +20,13 @@ export class AdapterFactory {
     this.loggerAdapter = new LoggerAdapter(
       this.configAdapter.getLoggerConfig()
     );
+
+    // パフォーマンス監視を初期化
+    this.performanceMonitor = new PerformanceMonitor(this.loggerAdapter, {
+      enableDetailedLogging: this.configAdapter.isDevelopment(),
+      warningThreshold: 200, // 200ms
+      errorThreshold: 500, // 500ms
+    });
 
     // Supabaseアダプターを初期化
     this.supabaseAdapter = new SupabaseAdapter(
@@ -47,6 +56,13 @@ export class AdapterFactory {
   }
 
   /**
+   * パフォーマンス監視を取得
+   */
+  getPerformanceMonitor(): PerformanceMonitor {
+    return this.performanceMonitor;
+  }
+
+  /**
    * traceId付きロガーを取得
    */
   getLoggerWithTraceId(traceId: string): LoggerAdapter {
@@ -61,6 +77,7 @@ export class AdapterFactory {
       config: this.configAdapter,
       logger: this.loggerAdapter,
       supabase: this.supabaseAdapter,
+      performance: this.performanceMonitor,
     };
   }
 
@@ -75,6 +92,7 @@ export class AdapterFactory {
     return {
       config: adapters.config,
       logger: adapters.logger,
+      performance: adapters.performance,
       supabase: {
         checkConnection: async () => {
           const result = await adapters.supabase.checkConnection();

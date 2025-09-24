@@ -3,7 +3,10 @@
  * Core層との連携とAPI応答形式への変換を担当
  */
 
-import { generateTraceId } from '@template/adapters';
+import {
+  generateTraceId,
+  type PerformanceMonitorInterface,
+} from '@template/adapters';
 import type { HealthStatus } from '@template/core';
 import type { HealthResponse } from '@template/generated';
 
@@ -53,6 +56,7 @@ export class HealthService {
   constructor(
     private readonly coreHealthService: CoreHealthServiceInterface,
     private readonly logger: LoggerInterface,
+    private readonly performanceMonitor?: PerformanceMonitorInterface,
     config: HealthServiceConfig = {}
   ) {
     this.config = {
@@ -74,6 +78,11 @@ export class HealthService {
       logger: contextLogger,
       operation: this.config.operationName,
     };
+
+    // パフォーマンス測定開始
+    const measurement =
+      this.performanceMonitor?.startMeasurement('bff-health-check');
+    measurement?.addMetadata('traceId', requestTraceId);
 
     try {
       contextLogger.info(
@@ -99,6 +108,12 @@ export class HealthService {
       // レスポンスをバリデーション
       const validatedResponse = this.validateResponse(apiResponse);
 
+      // パフォーマンス測定終了（成功）
+      measurement?.end({
+        status: validatedResponse.status,
+        servicesCount: validatedResponse.services.length,
+      });
+
       contextLogger.info(
         {
           status: validatedResponse.status,
@@ -113,6 +128,11 @@ export class HealthService {
         data: validatedResponse,
       };
     } catch (error) {
+      // パフォーマンス測定終了（エラー）
+      measurement?.endWithError(
+        error instanceof Error ? error : new Error('Unknown error')
+      );
+
       contextLogger.error(
         {
           error: error instanceof Error ? error.message : 'Unknown error',

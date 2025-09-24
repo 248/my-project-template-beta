@@ -9,14 +9,23 @@ export type {
 export type { SupabaseClient } from '@supabase/supabase-js';
 
 export { LoggerAdapter } from './logger/logger-adapter';
+export type { LoggerConfig, LogLevel } from './logger/logger-adapter';
+
 export type {
-  LoggerConfig,
-  LogLevel,
+  LoggerInterface,
   LogContext,
-} from './logger/logger-adapter';
+} from './interfaces/logger-interface';
 
 export { ConfigAdapter } from './config/config-adapter';
 export type { EnvConfig, RetryPolicy } from './config/config-adapter';
+
+export { PerformanceMonitor } from './performance/performance-monitor';
+export type {
+  PerformanceMetrics,
+  PerformanceStats,
+  PerformanceMonitorInterface,
+  PerformanceMeasurementInterface,
+} from './interfaces/performance-interface';
 
 // Environment configuration
 export {

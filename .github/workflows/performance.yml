@@ -1,0 +1,217 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # 毎日午前2時（UTC）に実行
+    - cron: '0 2 * * *'
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        backend-mode: [monolith, service]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.0.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate API types and client
+        run: pnpm generate
+
+      - name: Build packages
+        run: pnpm build:packages
+
+      - name: Setup test environment variables
+        run: |
+          cp .dev.vars.example .dev.vars
+          echo "BACKEND_MODE=${{ matrix.backend-mode }}" >> .dev.vars
+
+      - name: Start development server
+        run: |
+          pnpm dev &
+          echo $! > dev-server.pid
+
+          # サーバー起動を待機
+          timeout=30
+          while [ $timeout -gt 0 ]; do
+            if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "Development server is ready"
+              break
+            fi
+            sleep 1
+            timeout=$((timeout - 1))
+          done
+
+          if [ $timeout -eq 0 ]; then
+            echo "Development server failed to start"
+            exit 1
+          fi
+
+      - name: Run performance tests
+        id: perf-test
+        run: |
+          pnpm test:perf:ci
+        env:
+          BACKEND_MODE: ${{ matrix.backend-mode }}
+
+      - name: Stop development server
+        if: always()
+        run: |
+          if [ -f dev-server.pid ]; then
+            kill $(cat dev-server.pid) || true
+            rm dev-server.pid
+          fi
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results-${{ matrix.backend-mode }}
+          path: |
+            performance-results.json
+          retention-days: 30
+
+      - name: Comment PR with performance results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // パフォーマンス結果を読み込み（存在する場合）
+            let perfResults = null;
+            try {
+              if (fs.existsSync('performance-results.json')) {
+                perfResults = JSON.parse(fs.readFileSync('performance-results.json', 'utf8'));
+              }
+            } catch (error) {
+              console.log('Performance results not found or invalid');
+            }
+
+            const backendMode = '${{ matrix.backend-mode }}';
+            const passed = '${{ steps.perf-test.outcome }}' === 'success';
+
+            let comment = `## 📊 パフォーマンステスト結果 (${backendMode}モード)\n\n`;
+
+            if (perfResults) {
+              const { results, target, passed: testPassed } = perfResults;
+              const status = testPassed ? '✅ PASS' : '❌ FAIL';
+              
+              comment += `**結果**: ${status}\n\n`;
+              comment += `| メトリクス | 値 | 目標 |\n`;
+              comment += `|-----------|----|----- |\n`;
+              comment += `| p95レスポンス時間 | ${results.p95}ms | ≤ ${target}ms |\n`;
+              comment += `| 平均レスポンス時間 | ${results.avgLatency}ms | - |\n`;
+              comment += `| スループット | ${results.throughput} req/sec | - |\n`;
+              comment += `| 総リクエスト数 | ${results.totalRequests.toLocaleString()} | - |\n`;
+              comment += `| エラー数 | ${results.errors} | - |\n\n`;
+              
+              if (!testPassed) {
+                comment += `⚠️ **パフォーマンス目標未達成**\n`;
+                comment += `p95レスポンス時間が目標値(${target}ms)を超過しています。\n\n`;
+                comment += `**改善提案**:\n`;
+                comment += `- Supabase接続プールの最適化\n`;
+                comment += `- レスポンスキャッシュの実装\n`;
+                comment += `- 不要なログ出力の削減\n`;
+                comment += `- データベースクエリの最適化\n`;
+              }
+            } else {
+              comment += `**結果**: ${passed ? '✅ PASS' : '❌ FAIL'}\n\n`;
+              if (!passed) {
+                comment += `テストの実行中にエラーが発生しました。詳細はワークフローログを確認してください。\n`;
+              }
+            }
+
+            // 既存のコメントを検索
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes(`パフォーマンステスト結果 (${backendMode}モード)`)
+            );
+
+            if (botComment) {
+              // 既存のコメントを更新
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // 新しいコメントを作成
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+  performance-summary:
+    runs-on: ubuntu-latest
+    needs: performance-test
+    if: always()
+
+    steps:
+      - name: Download performance results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: performance-results-*
+          merge-multiple: true
+
+      - name: Generate performance summary
+        run: |
+          echo "# 📊 パフォーマンステスト サマリー" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for mode in monolith service; do
+            if [ -f "performance-results-${mode}.json" ]; then
+              echo "## ${mode}モード" >> $GITHUB_STEP_SUMMARY
+              
+              # JSONから結果を抽出（jqが利用可能な場合）
+              if command -v jq >/dev/null 2>&1; then
+                p95=$(jq -r '.results.p95' "performance-results-${mode}.json")
+                target=$(jq -r '.target' "performance-results-${mode}.json")
+                passed=$(jq -r '.passed' "performance-results-${mode}.json")
+                
+                if [ "$passed" = "true" ]; then
+                  echo "✅ **PASS** - p95: ${p95}ms (目標: ≤${target}ms)" >> $GITHUB_STEP_SUMMARY
+                else
+                  echo "❌ **FAIL** - p95: ${p95}ms (目標: ≤${target}ms)" >> $GITHUB_STEP_SUMMARY
+                fi
+              else
+                echo "結果ファイルが見つかりました" >> $GITHUB_STEP_SUMMARY
+              fi
+              echo "" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "## ${mode}モード" >> $GITHUB_STEP_SUMMARY
+              echo "❌ テスト結果が見つかりません" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done

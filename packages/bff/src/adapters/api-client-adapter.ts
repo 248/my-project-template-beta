@@ -40,6 +40,7 @@ export class ApiClientAdapter {
       const healthService = new HealthService(
         coreHealthService,
         adapters.logger,
+        adapters.performance,
         {
           timeoutMs: this.config.timeout!,
           operationName: 'api-client-health-check',
