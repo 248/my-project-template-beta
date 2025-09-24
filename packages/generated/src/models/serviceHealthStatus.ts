@@ -9,8 +9,8 @@
 /**
  * サービスの稼働状況
  */
-export type ServiceHealthStatus = typeof ServiceHealthStatus[keyof typeof ServiceHealthStatus];
-
+export type ServiceHealthStatus =
+  (typeof ServiceHealthStatus)[keyof typeof ServiceHealthStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ServiceHealthStatus = {

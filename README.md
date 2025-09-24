@@ -1,4 +1,4 @@
-# Template Beta: Cloudflare + Supabase
+﻿# Template Beta: Cloudflare + Supabase
 
 Next.js（App Router）+ OpenNext + Cloudflare Workers + Supabase を使用したWebアプリケーション開発テンプレート
 
@@ -63,7 +63,7 @@ pnpm dev
 
 - `pnpm dev` - 開発サーバー起動（wrangler dev + OpenAPI生成チェック）
 - `pnpm build` - 本番ビルド
-- `pnpm generate` - OpenAPIから型・クライアント生成
+- `pnpm generate` - OpenAPIから型・クライアント生成（mutator適用 + Prettier/ESLint 自動実行。`packages/generated/`配下は生成物のため手動編集しないでください）
 - `pnpm generate:check` - 生成物の同期チェック
 
 ### 品質管理

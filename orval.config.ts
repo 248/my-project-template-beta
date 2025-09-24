@@ -9,13 +9,19 @@ export default defineConfig({
       schemas: './packages/generated/src/models',
       client: 'fetch',
       mock: false,
-      clean: true,
+      clean: ['!orval-fetcher.ts'],
       prettier: true,
+      override: {
+        mutator: {
+          path: './packages/generated/src/orval-fetcher.ts',
+          name: 'orvalFetch',
+        },
+      },
     },
     hooks: {
       afterAllFilesWrite: [
-        'node scripts/fix-generated-types.js',
-        'prettier --write',
+        'pnpm exec prettier --ignore-path scripts/.prettierignore.generated --write packages/generated/src/**/*.ts',
+        'pnpm exec eslint --no-ignore --config packages/generated/.eslintrc.js --ext .ts --fix packages/generated/src',
       ],
     },
   },

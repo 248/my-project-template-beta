@@ -1,4 +1,4 @@
-# 環境設定ガイド
+﻿# 環境設定ガイド
 
 ## 概要
 
@@ -110,6 +110,8 @@ pnpm generate:check
 # OpenAPI Lint
 pnpm openapi:lint
 ```
+
+> `pnpm generate` 実行時は orval の mutator が適用され、Prettier と ESLint が自動で走ります。`packages/generated/` 配下は生成物のため直接編集せず、必要な変更は OpenAPI 契約や mutator 側で反映してください。
 
 ## デプロイ環境の設定
 

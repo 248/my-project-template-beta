@@ -9,8 +9,8 @@
 /**
  * システム全体のステータス
  */
-export type HealthResponseStatus = typeof HealthResponseStatus[keyof typeof HealthResponseStatus];
-
+export type HealthResponseStatus =
+  (typeof HealthResponseStatus)[keyof typeof HealthResponseStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const HealthResponseStatus = {

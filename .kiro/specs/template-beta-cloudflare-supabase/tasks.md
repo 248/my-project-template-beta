@@ -1,4 +1,4 @@
-# 実装計画
+﻿# 実装計画
 
 - [x] 1. プロジェクト基盤とモノレポ構成の設定
   - pnpm ワークスペース構成でモノレポを初期化
@@ -89,10 +89,10 @@
 
 - [x] 10.1. orval 型問題の解決と pre-commit フック有効化
   - orval の customFetch mutator 設定を修正して型安全性を確保
-  - 生成されたクライアントの型アサーション問題を解決（現在手動で `as HealthResponse` を追加）
+  - 生成されたクライアントの型アサーション問題を暫定回避（詳細は Task26 の恒久対応を参照）
   - .husky/pre-commit で generate:check を再有効化
   - lint-staged の全チェック（ESLint, Prettier, TypeScript, OpenAPI）を有効化
-  - **先送り問題**: 現在 `packages/generated/src/client.ts` で手動型アサーションを使用
+  - **フォローアップ**: Task26 で手動型アサーションを排除済み
   - _要件: 6.2, 6.3_
 
 - [x] 10.2. Kiro IDE自動修正後の問題修正
@@ -240,9 +240,9 @@
   - **実施タイミング**: フェーズ1完了後（タスク12.1後）またはフェーズ2完了後（タスク21後）の品質向上フェーズ
   - _要件: 品質向上、開発体験向上_
 
-- [ ] 17. orval 生成クライアントの型アサーション問題の修正
-  - orval.config.ts の customFetch mutator 設定を改善
-  - 生成されたクライアントの型アサーション問題を根本的に解決
-  - 手動修正が不要になるよう自動化
-  - 型安全性を確保しつつ、生成後の手動修正を排除
+- [x] 26. orval 生成クライアントの型アサーション問題の修正
+  - packages/generated/src/orval-fetcher.ts を追加し、共通 mutator で JSON を `{ status, data }` 形式に正規化
+  - orval.config.ts に mutator / clean 設定と Prettier・ESLint フックを追加し、生成物の整形と検証を自動化
+  - scripts/fix-generated-types.js を撤廃し、`pnpm generate` 後の手動修正フローを解消
+  - 生成クライアントを利用する既存コード（BFF/フロント）で追従動作を確認し、追加の型アサーションが不要なことを検証
   - _要件: 6.2, 6.3_

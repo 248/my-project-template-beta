@@ -7,12 +7,12 @@
  */
 
 export type AuthCallbackParams = {
-/**
- * OAuth認証コード
- */
-code: string;
-/**
- * CSRF保護用のstate値
- */
-state?: string;
+  /**
+   * OAuth認証コード
+   */
+  code: string;
+  /**
+   * CSRF保護用のstate値
+   */
+  state?: string;
 };

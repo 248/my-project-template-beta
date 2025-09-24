@@ -5,8 +5,8 @@
  * Next.js + OpenNext + Cloudflare Workers + Supabase テンプレートのAPI仕様
  * OpenAPI spec version: 1.0.0
  */
-import type { ServiceHealth } from './serviceHealth';
 import type { HealthResponseStatus } from './healthResponseStatus';
+import type { ServiceHealth } from './serviceHealth';
 
 export interface HealthResponse {
   /** 各サービスの詳細ステータス */

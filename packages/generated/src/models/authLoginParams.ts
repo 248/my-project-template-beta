@@ -8,12 +8,12 @@
 import type { AuthLoginProvider } from './authLoginProvider';
 
 export type AuthLoginParams = {
-/**
- * OAuth認証プロバイダー
- */
-provider: AuthLoginProvider;
-/**
- * 認証後のリダイレクト先URL
- */
-redirectTo?: string;
+  /**
+   * OAuth認証プロバイダー
+   */
+  provider: AuthLoginProvider;
+  /**
+   * 認証後のリダイレクト先URL
+   */
+  redirectTo?: string;
 };

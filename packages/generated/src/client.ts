@@ -11,8 +11,9 @@ import type {
   AuthLoginParams,
   AuthResponse,
   HealthResponse,
-  LogoutResponse
-} from './models'
+  LogoutResponse,
+} from './models';
+import { orvalFetch } from './orval-fetcher';
 
 /**
  * システム全体の稼働状況とバックエンドサービスの接続状況を確認します
@@ -21,28 +22,20 @@ import type {
 export type getHealthResponse = {
   data: HealthResponse;
   status: number;
-}
+};
 
 export const getGetHealthUrl = () => {
+  return `/api/health`;
+};
 
-
-  return `/api/health`
-}
-
-export const getHealth = async ( options?: RequestInit): Promise<getHealthResponse> => {
-  const res = await fetch(getGetHealthUrl(),
-  {      
+export const getHealth = async (
+  options?: RequestInit
+): Promise<getHealthResponse> => {
+  return orvalFetch<Promise<getHealthResponse>>(getGetHealthUrl(), {
     ...options,
-    method: 'GET'
-    
-  }
-
-  )
-  const data = await res.json() as HealthResponse
-
-  return { status: res.status, data }
-}
-
+    method: 'GET',
+  });
+};
 
 /**
  * 指定されたプロバイダーでOAuth認証を開始します
@@ -51,10 +44,9 @@ export const getHealth = async ( options?: RequestInit): Promise<getHealthRespon
 export type authLoginResponse = {
   data: AuthResponse;
   status: number;
-}
+};
 
-export const getAuthLoginUrl = (params: AuthLoginParams,) => {
-
+export const getAuthLoginUrl = (params: AuthLoginParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -65,23 +57,18 @@ export const getAuthLoginUrl = (params: AuthLoginParams,) => {
     }
   });
 
-  return `/auth/login?${normalizedParams.toString()}`
-}
+  return `/auth/login?${normalizedParams.toString()}`;
+};
 
-export const authLogin = async (params: AuthLoginParams, options?: RequestInit): Promise<authLoginResponse> => {
-  const res = await fetch(getAuthLoginUrl(params),
-  {      
+export const authLogin = async (
+  params: AuthLoginParams,
+  options?: RequestInit
+): Promise<authLoginResponse> => {
+  return orvalFetch<Promise<authLoginResponse>>(getAuthLoginUrl(params), {
     ...options,
-    method: 'POST'
-    
-  }
-
-  )
-  const data = await res.json() as AuthResponse
-
-  return { status: res.status, data }
-}
-
+    method: 'POST',
+  });
+};
 
 /**
  * OAuth認証プロバイダーからのコールバックを処理します
@@ -90,10 +77,9 @@ export const authLogin = async (params: AuthLoginParams, options?: RequestInit):
 export type authCallbackResponse = {
   data: AuthCallback200;
   status: number;
-}
+};
 
-export const getAuthCallbackUrl = (params: AuthCallbackParams,) => {
-
+export const getAuthCallbackUrl = (params: AuthCallbackParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -104,23 +90,18 @@ export const getAuthCallbackUrl = (params: AuthCallbackParams,) => {
     }
   });
 
-  return `/auth/callback?${normalizedParams.toString()}`
-}
+  return `/auth/callback?${normalizedParams.toString()}`;
+};
 
-export const authCallback = async (params: AuthCallbackParams, options?: RequestInit): Promise<authCallbackResponse> => {
-  const res = await fetch(getAuthCallbackUrl(params),
-  {      
+export const authCallback = async (
+  params: AuthCallbackParams,
+  options?: RequestInit
+): Promise<authCallbackResponse> => {
+  return orvalFetch<Promise<authCallbackResponse>>(getAuthCallbackUrl(params), {
     ...options,
-    method: 'GET'
-    
-  }
-
-  )
-  const data = await res.json() as AuthCallback200
-
-  return { status: res.status, data }
-}
-
+    method: 'GET',
+  });
+};
 
 /**
  * 現在のセッションを終了します
@@ -129,26 +110,17 @@ export const authCallback = async (params: AuthCallbackParams, options?: Request
 export type authLogoutResponse = {
   data: LogoutResponse;
   status: number;
-}
+};
 
 export const getAuthLogoutUrl = () => {
+  return `/auth/logout`;
+};
 
-
-  return `/auth/logout`
-}
-
-export const authLogout = async ( options?: RequestInit): Promise<authLogoutResponse> => {
-  const res = await fetch(getAuthLogoutUrl(),
-  {      
+export const authLogout = async (
+  options?: RequestInit
+): Promise<authLogoutResponse> => {
+  return orvalFetch<Promise<authLogoutResponse>>(getAuthLogoutUrl(), {
     ...options,
-    method: 'POST'
-    
-  }
-
-  )
-  const data = await res.json() as LogoutResponse
-
-  return { status: res.status, data }
-}
-
-
+    method: 'POST',
+  });
+};
