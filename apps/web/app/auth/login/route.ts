@@ -7,6 +7,9 @@ import {
 } from '@/lib/auth/redirect-utils';
 import { createClient } from '@/lib/supabase/server';
 
+// 動的レンダリングを強制
+export const dynamic = 'force-dynamic';
+
 // リクエストバリデーションスキーマ
 const LoginRequestSchema = z.object({
   provider: z.enum(['google', 'github', 'discord']),

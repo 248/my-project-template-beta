@@ -7,6 +7,9 @@ import {
 } from '@/lib/auth/redirect-utils';
 import { createClient } from '@/lib/supabase/server';
 
+// 動的レンダリングを強制
+export const dynamic = 'force-dynamic';
+
 // リクエストバリデーションスキーマ
 const CallbackRequestSchema = z.object({
   code: z.string().optional(), // OAuth拒否時はcodeが無い場合がある

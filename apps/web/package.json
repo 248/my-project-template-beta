@@ -16,7 +16,13 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:unit": "vitest run --reporter=verbose",
+    "test:integration": "vitest run --reporter=verbose __tests__/integration/",
+    "test:contract": "vitest run --reporter=verbose __tests__/api/",
     "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:all": "pnpm test:unit && pnpm test:integration && pnpm test:contract && pnpm test:e2e",
     "clean": "rm -rf .next .open-next dist"
   },
   "dependencies": {

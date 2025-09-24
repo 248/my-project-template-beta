@@ -23,6 +23,8 @@ HEALTH_CHECK_TIMEOUT_MS=3000
 # 開発用設定
 ENABLE_PERFORMANCE_LOGGING=true
 ENABLE_DEBUG_LOGGING=true
+# 開発環境で認証を完全にスキップする場合は true に設定（デバッグ用）
+SKIP_AUTH_IN_DEV=false
 
 # ENV優先順位の説明:
 # 1. CI環境変数 (GitHub Actions secrets)

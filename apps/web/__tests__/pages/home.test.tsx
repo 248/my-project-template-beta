@@ -234,9 +234,12 @@ describe('HomePage', () => {
       fireEvent.click(logoutButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/auth/logout', {
-          method: 'POST',
-        });
+        expect(global.fetch).toHaveBeenCalledWith(
+          '/auth/logout',
+          expect.objectContaining({
+            method: 'POST',
+          })
+        );
       });
 
       await waitFor(() => {

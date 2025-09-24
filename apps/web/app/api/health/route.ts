@@ -3,6 +3,9 @@
  * BFF層との連携とOpenAPI契約準拠
  */
 
+// 動的レンダリングを強制
+export const dynamic = 'force-dynamic';
+
 import {
   AdapterFactory,
   generateTraceId,

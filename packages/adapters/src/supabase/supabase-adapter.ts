@@ -32,22 +32,13 @@ export class SupabaseAdapter {
    * SSR環境でのCookie管理に対応
    */
   createServerClient(cookieStore: {
-    getAll(): Array<{ name: string; value: string }>;
-    setAll(
-      cookies: Array<{
-        name: string;
-        value: string;
-        options?: {
-          domain?: string;
-          expires?: Date;
-          httpOnly?: boolean;
-          maxAge?: number;
-          path?: string;
-          sameSite?: 'strict' | 'lax' | 'none';
-          secure?: boolean;
-        };
-      }>
-    ): void;
+    get: (name: string) => string | undefined;
+    set: (
+      name: string,
+      value: string,
+      options?: Record<string, unknown>
+    ) => void;
+    remove: (name: string, options?: Record<string, unknown>) => void;
   }) {
     return createServerClient(this.config.url, this.config.anonKey, {
       cookies: cookieStore,

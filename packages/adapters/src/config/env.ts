@@ -43,7 +43,7 @@ function getEnvVar(key: string, defaultValue?: string): string {
     throw new Error(`Required environment variable ${key} is not set`);
   }
 
-  return value;
+  return String(value);
 }
 
 /**

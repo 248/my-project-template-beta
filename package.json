@@ -8,7 +8,8 @@
   },
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "pnpm run generate:check && wrangler dev --env development",
+    "dev": "pnpm run generate:check && pnpm --filter web dev:next",
+    "dev:wrangler": "pnpm run generate:check && wrangler dev --env development",
     "dev:monolith": "cross-env BACKEND_MODE=monolith pnpm dev",
     "dev:service": "cross-env BACKEND_MODE=service pnpm dev",
     "build": "pnpm run generate && pnpm run build:packages && pnpm run build:web",

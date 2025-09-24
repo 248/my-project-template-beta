@@ -8,6 +8,13 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     globals: true,
     css: false, // CSSファイルの処理を無効化（テスト高速化）
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**', // E2Eテストを除外
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+    ],
   },
   resolve: {
     alias: {
