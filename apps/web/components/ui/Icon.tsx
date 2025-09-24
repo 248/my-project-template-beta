@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import React, { HTMLAttributes } from 'react';
 
 interface IconProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   name: string;

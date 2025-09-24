@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import {
+  generateAuthState,
+  validateRedirectUrl,
+} from '@/lib/auth/redirect-utils';
 import { createClient } from '@/lib/supabase/server';
 
 // リクエストバリデーションスキーマ
 const LoginRequestSchema = z.object({
   provider: z.enum(['google', 'github', 'discord']),
-  redirectTo: z.string().url().optional(),
+  redirectTo: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -24,15 +28,32 @@ export async function POST(request: NextRequest) {
       redirectTo: redirectTo || undefined,
     });
 
+    // リダイレクト先URLの検証
+    let safeRedirectTo = '/home';
+    if (validatedData.redirectTo) {
+      const fullRedirectUrl = validatedData.redirectTo.startsWith('/')
+        ? `${request.nextUrl.origin}${validatedData.redirectTo}`
+        : validatedData.redirectTo;
+
+      if (validateRedirectUrl(fullRedirectUrl, request.nextUrl.origin)) {
+        safeRedirectTo = validatedData.redirectTo;
+      }
+    }
+
     // Supabaseクライアントを作成
     const supabase = createClient();
+
+    // state情報を生成（リダイレクト先を含む）
+    const state = generateAuthState(safeRedirectTo);
 
     // OAuth認証URLを生成
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: validatedData.provider as 'google' | 'github' | 'discord',
       options: {
-        redirectTo:
-          validatedData.redirectTo || `${request.nextUrl.origin}/auth/callback`,
+        redirectTo: `${request.nextUrl.origin}/auth/callback`,
+        queryParams: {
+          state,
+        },
       },
     });
 

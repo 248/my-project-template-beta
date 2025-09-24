@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import React from 'react';
 
+import { AuthErrorHandler } from '@/components/auth/AuthErrorHandler';
 import { LoginButton } from '@/components/auth/LoginButton';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { Container } from '@/components/layout/Container';
@@ -8,7 +10,14 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function HomePage() {
+interface HomePageProps {
+  searchParams: {
+    error?: string;
+    redirect_to?: string;
+  };
+}
+
+export default async function HomePage({ searchParams = {} }: HomePageProps) {
   // サーバーサイドで認証状態を取得
   const supabase = createClient();
   const {
@@ -16,6 +25,7 @@ export default async function HomePage() {
   } = await supabase.auth.getSession();
 
   const user = session?.user;
+  const { error: errorCode, redirect_to: redirectTo } = searchParams;
 
   return (
     <Container className="py-12">
@@ -28,6 +38,13 @@ export default async function HomePage() {
           <p className="text-lg leading-8 text-neutral-700 mb-8 max-w-2xl mx-auto">
             Next.js template with Cloudflare Workers and Supabase
           </p>
+
+          {/* エラー表示 */}
+          {errorCode && (
+            <div className="max-w-md mx-auto mb-6">
+              <AuthErrorHandler errorCode={errorCode} />
+            </div>
+          )}
 
           {/* 認証状態による表示切替 */}
           {user ? (
@@ -43,13 +60,15 @@ export default async function HomePage() {
                 </div>
                 <UserMenu user={user} />
               </div>
-              <Link href="/home">
+              <Link href={redirectTo || '/home'}>
                 <Button
                   size="lg"
                   className="flex items-center justify-center space-x-2"
                 >
                   <Icon name="home" size={20} className="text-white" />
-                  <span>ホームページへ</span>
+                  <span>
+                    {redirectTo ? '元のページへ戻る' : 'ホームページへ'}
+                  </span>
                 </Button>
               </Link>
             </div>
@@ -67,6 +86,11 @@ export default async function HomePage() {
                 <p className="text-sm">
                   認証後、すべての機能をご利用いただけます
                 </p>
+                {redirectTo && (
+                  <p className="text-xs text-primary-600 mt-2">
+                    ログイン後、元のページに戻ります
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -93,7 +117,7 @@ export default async function HomePage() {
                   </Button>
                 </Link>
               ) : (
-                <LoginButton />
+                <LoginButton redirectTo={redirectTo} />
               )}
             </CardBody>
           </Card>

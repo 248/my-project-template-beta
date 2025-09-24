@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import React from 'react';
 
 import { UserMenu } from '@/components/auth/UserMenu';
 import { HealthChecker } from '@/components/health/HealthChecker';

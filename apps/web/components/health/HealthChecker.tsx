@@ -17,6 +17,7 @@ interface HealthCheckState {
   result: HealthResponse | null;
   error: string | null;
   lastChecked: Date | null;
+  retryCount: number;
 }
 
 export function HealthChecker({ className = '' }: HealthCheckerProps) {
@@ -25,32 +26,67 @@ export function HealthChecker({ className = '' }: HealthCheckerProps) {
     result: null,
     error: null,
     lastChecked: null,
+    retryCount: 0,
   });
 
-  const executeHealthCheck = async () => {
+  const executeHealthCheck = async (isRetry = false) => {
     setState(prev => ({
       ...prev,
       isLoading: true,
       error: null,
+      retryCount: isRetry ? prev.retryCount + 1 : 0,
     }));
 
     try {
-      const response = await getHealth();
-      setState({
+      // タイムアウト制御
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒タイムアウト
+
+      const response = await getHealth({
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      setState(prev => ({
+        ...prev,
         isLoading: false,
         result: response.data,
         error: null,
         lastChecked: new Date(),
-      });
+      }));
     } catch (error) {
       console.error('ヘルスチェックエラー:', error);
-      setState({
+
+      let errorMessage = '不明なエラーが発生しました';
+
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'ヘルスチェックがタイムアウトしました（15秒）';
+        } else if (
+          error.message.includes('fetch') ||
+          error.message.includes('network')
+        ) {
+          errorMessage =
+            'ネットワークエラーが発生しました。接続を確認してください。';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setState(prev => ({
+        ...prev,
         isLoading: false,
         result: null,
-        error:
-          error instanceof Error ? error.message : '不明なエラーが発生しました',
+        error: errorMessage,
         lastChecked: new Date(),
-      });
+      }));
+    }
+  };
+
+  const handleRetry = () => {
+    if (state.retryCount < 3) {
+      executeHealthCheck(true);
     }
   };
 
@@ -115,7 +151,7 @@ export function HealthChecker({ className = '' }: HealthCheckerProps) {
         {/* ヘルスチェック実行ボタン */}
         <div className="mb-6">
           <Button
-            onClick={executeHealthCheck}
+            onClick={() => executeHealthCheck()}
             loading={state.isLoading}
             className="w-full flex items-center justify-center space-x-2"
             data-testid="health-check-button"
@@ -127,6 +163,12 @@ export function HealthChecker({ className = '' }: HealthCheckerProps) {
                 : 'ヘルスチェック実行'}
             </span>
           </Button>
+
+          {state.retryCount > 0 && (
+            <p className="text-xs text-neutral-600 mt-2 text-center">
+              再試行回数: {state.retryCount}/3
+            </p>
+          )}
         </div>
 
         {/* 結果表示エリア */}
@@ -139,14 +181,21 @@ export function HealthChecker({ className = '' }: HealthCheckerProps) {
               </span>
             </div>
             <p className="text-danger-700 text-sm">{state.error}</p>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={executeHealthCheck}
-              className="mt-3"
-            >
-              再試行
-            </Button>
+            <div className="flex items-center justify-between mt-3">
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={handleRetry}
+                disabled={state.retryCount >= 3}
+              >
+                {state.retryCount >= 3 ? '再試行上限に達しました' : '再試行'}
+              </Button>
+              {state.error.includes('ネットワーク') && (
+                <span className="text-xs text-danger-600">
+                  ネットワーク接続を確認してください
+                </span>
+              )}
+            </div>
           </div>
         )}
 

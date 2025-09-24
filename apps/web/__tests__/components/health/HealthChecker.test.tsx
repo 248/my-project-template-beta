@@ -1,5 +1,6 @@
 import { getHealth } from '@generated/client';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { HealthChecker } from '@/components/health/HealthChecker';

@@ -53,7 +53,7 @@ describe('HomePage', () => {
     });
 
     it('ログインボタンが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       expect(screen.getByText('ログインしてください')).toBeInTheDocument();
       expect(screen.getByText('Googleでログイン')).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('HomePage', () => {
     });
 
     it('認証機能カードにログインボタンが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       const authCard = screen.getByText('認証機能').closest('.card');
       expect(authCard).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('HomePage', () => {
     });
 
     it('ヘルスチェックカードが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       expect(screen.getAllByText('ヘルスチェック')).toHaveLength(2); // カードタイトルとボタンテキスト
       expect(screen.getByText('システムの稼働状況を確認')).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe('HomePage', () => {
     });
 
     it('技術スタックが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       expect(screen.getByText('技術スタック')).toBeInTheDocument();
       expect(screen.getByText('Next.js App Router')).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe('HomePage', () => {
     });
 
     it('ログイン済みメッセージが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       expect(screen.getByText('ログイン済み')).toBeInTheDocument();
       expect(screen.getByText('Test User')).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('HomePage', () => {
     });
 
     it('ホームページへのリンクが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       const homeLinks = screen.getAllByText('ホームページへ');
       expect(homeLinks).toHaveLength(2); // メイン部分と認証カード内
@@ -132,7 +132,7 @@ describe('HomePage', () => {
     });
 
     it('ユーザーメニューが表示される', async () => {
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       expect(screen.getByText('Test User')).toBeInTheDocument();
       expect(screen.getByText('test@example.com')).toBeInTheDocument();
@@ -162,7 +162,7 @@ describe('HomePage', () => {
         writable: true,
       });
 
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       const googleLoginButton = screen.getByTestId('login-button');
       fireEvent.click(googleLoginButton);
@@ -185,7 +185,7 @@ describe('HomePage', () => {
         }),
       } as Response);
 
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       const googleLoginButton = screen.getByTestId('login-button');
       fireEvent.click(googleLoginButton);
@@ -228,7 +228,7 @@ describe('HomePage', () => {
         writable: true,
       });
 
-      render(await HomePage());
+      render(await HomePage({ searchParams: {} }));
 
       const logoutButton = screen.getByText('ログアウト');
       fireEvent.click(logoutButton);

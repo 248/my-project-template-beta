@@ -59,7 +59,10 @@ describe('Auth Route Handlers', () => {
       expect(mockSupabaseClient.auth.signInWithOAuth).toHaveBeenCalledWith({
         provider: 'google',
         options: {
-          redirectTo: 'http://localhost:3000/home',
+          redirectTo: 'http://localhost:3000/auth/callback',
+          queryParams: {
+            state: expect.any(String),
+          },
         },
       });
     });
