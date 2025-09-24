@@ -175,7 +175,7 @@
   - lint-staged 通過の確認
   - _要件: 技術的品質保証_
 
-- [ ] 15. 認証 Route Handlers の実装
+- [x] 15. 認証 Route Handlers の実装
   - /auth/login/route.ts の実装
   - /auth/callback/route.ts の実装
   - /auth/logout/route.ts の実装
