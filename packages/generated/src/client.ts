@@ -12,6 +12,9 @@ import type {
   AuthResponse,
   HealthResponse,
   LogoutResponse,
+  PerformanceStatsResponse,
+  ResetPerformanceStats200,
+  ResetPerformanceStatsParams,
 } from './models';
 import { orvalFetch } from './orval-fetcher';
 
@@ -35,6 +38,69 @@ export const getHealth = async (
     ...options,
     method: 'GET',
   });
+};
+
+/**
+ * システムのパフォーマンス統計情報を取得します
+ * @summary パフォーマンス統計取得
+ */
+export type getPerformanceStatsResponse = {
+  data: PerformanceStatsResponse;
+  status: number;
+};
+
+export const getGetPerformanceStatsUrl = () => {
+  return `/api/health/performance`;
+};
+
+export const getPerformanceStats = async (
+  options?: RequestInit
+): Promise<getPerformanceStatsResponse> => {
+  return orvalFetch<Promise<getPerformanceStatsResponse>>(
+    getGetPerformanceStatsUrl(),
+    {
+      ...options,
+      method: 'GET',
+    }
+  );
+};
+
+/**
+ * パフォーマンス統計をリセットします
+ * @summary パフォーマンス統計リセット
+ */
+export type resetPerformanceStatsResponse = {
+  data: ResetPerformanceStats200;
+  status: number;
+};
+
+export const getResetPerformanceStatsUrl = (
+  params?: ResetPerformanceStatsParams
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value === null) {
+      normalizedParams.append(key, 'null');
+    } else if (value !== undefined) {
+      normalizedParams.append(key, value.toString());
+    }
+  });
+
+  return `/api/health/performance?${normalizedParams.toString()}`;
+};
+
+export const resetPerformanceStats = async (
+  params?: ResetPerformanceStatsParams,
+  options?: RequestInit
+): Promise<resetPerformanceStatsResponse> => {
+  return orvalFetch<Promise<resetPerformanceStatsResponse>>(
+    getResetPerformanceStatsUrl(params),
+    {
+      ...options,
+      method: 'DELETE',
+    }
+  );
 };
 
 /**
