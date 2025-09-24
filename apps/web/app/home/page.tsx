@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import React from 'react';
 
 import { UserMenu } from '@/components/auth/UserMenu';
+import { HealthChecker } from '@/components/health/HealthChecker';
 import { Container } from '@/components/layout/Container';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/Button';
@@ -102,35 +102,7 @@ export default async function HomePage() {
           {/* 機能セクション */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* ヘルスチェック機能 */}
-            <Card>
-              <CardBody>
-                <div className="flex items-center mb-4">
-                  <Icon
-                    name="health"
-                    size={24}
-                    className="text-success-500 mr-3"
-                  />
-                  <h3 className="text-lg font-semibold text-neutral-900">
-                    システムヘルスチェック
-                  </h3>
-                </div>
-                <p className="text-neutral-600 mb-6">
-                  システムの稼働状況をリアルタイムで確認できます
-                </p>
-
-                {/* ヘルスチェックボタン - タスク19で実装予定 */}
-                <Button
-                  className="w-full flex items-center justify-center space-x-2"
-                  disabled
-                >
-                  <Icon name="health" size={18} className="text-white" />
-                  <span>ヘルスチェック実行</span>
-                </Button>
-                <p className="text-xs text-neutral-500 mt-2 text-center">
-                  ※ この機能は次のタスクで実装予定です
-                </p>
-              </CardBody>
-            </Card>
+            <HealthChecker />
 
             {/* システム情報 */}
             <Card>

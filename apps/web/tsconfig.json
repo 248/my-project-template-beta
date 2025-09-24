@@ -10,7 +10,8 @@
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
       "@/app/*": ["./app/*"],
-      "@/lib/*": ["./lib/*"]
+      "@/lib/*": ["./lib/*"],
+      "@generated/*": ["../../packages/generated/src/*"]
     },
     "plugins": [
       {

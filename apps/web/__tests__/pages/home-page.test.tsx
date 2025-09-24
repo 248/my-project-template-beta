@@ -18,10 +18,30 @@ vi.mock('next/navigation', () => ({
 
 // Next.jsのLinkコンポーネントをモック
 vi.mock('next/link', () => ({
-  default: ({ children, href, ...props }: any) => (
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+    [key: string]: unknown;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>
+  ),
+}));
+
+// HealthCheckerコンポーネントをモック
+vi.mock('@/components/health/HealthChecker', () => ({
+  HealthChecker: () => (
+    <div data-testid="health-checker">
+      <h3>システムヘルスチェック</h3>
+      <p>システムの稼働状況をリアルタイムで確認できます</p>
+      <button disabled>ヘルスチェック実行</button>
+      <p>※ この機能は次のタスクで実装予定です</p>
+    </div>
   ),
 }));
 
@@ -30,11 +50,13 @@ describe('HomePage (/home)', () => {
     auth: {
       getSession: vi.fn(),
     },
-  };
+  } as ReturnType<typeof createClient>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (createClient as any).mockReturnValue(mockSupabaseClient);
+    vi.mocked(createClient).mockReturnValue(
+      mockSupabaseClient as ReturnType<typeof createClient>
+    );
   });
 
   describe('未認証状態', () => {

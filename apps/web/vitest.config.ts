@@ -22,6 +22,7 @@ export default defineConfig({
         __dirname,
         '../../packages/generated/src'
       ),
+      '@generated': path.resolve(__dirname, '../../packages/generated/src'),
     },
   },
 });

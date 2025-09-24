@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import React from 'react';
 
 import { LoginButton } from '@/components/auth/LoginButton';
 import { UserMenu } from '@/components/auth/UserMenu';

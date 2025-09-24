@@ -12,7 +12,15 @@ vi.mock('@/lib/supabase/server', () => ({
 
 // Next.jsのLinkコンポーネントをモック
 vi.mock('next/link', () => ({
-  default: ({ children, href, ...props }: any) => (
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+    [key: string]: unknown;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -31,8 +39,10 @@ describe('HomePage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (createClient as any).mockReturnValue(mockSupabaseClient);
-    (global.fetch as any).mockClear();
+    vi.mocked(createClient).mockReturnValue(
+      mockSupabaseClient as ReturnType<typeof createClient>
+    );
+    vi.mocked(global.fetch).mockClear();
   });
 
   describe('未認証状態', () => {
@@ -138,16 +148,19 @@ describe('HomePage', () => {
     });
 
     it('Googleログインボタンクリック時にAPIを呼び出す', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           data: { url: 'https://supabase.auth.url' },
         }),
-      });
+      } as Response);
 
       // window.location.hrefのモック
-      delete (window as any).location;
-      (window as any).location = { href: '' };
+      const mockLocation = { href: '' };
+      Object.defineProperty(window, 'location', {
+        value: mockLocation,
+        writable: true,
+      });
 
       render(await HomePage());
 
@@ -165,12 +178,12 @@ describe('HomePage', () => {
     });
 
     it('ログインエラー時にエラーメッセージを表示する', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         json: async () => ({
           error: { message: 'ログインに失敗しました' },
         }),
-      });
+      } as Response);
 
       render(await HomePage());
 
@@ -204,14 +217,16 @@ describe('HomePage', () => {
     });
 
     it('ログアウトボタンクリック時にAPIを呼び出す', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
-      });
+      } as Response);
 
       // window.location.reloadのモック
       const mockReload = vi.fn();
-      delete (window as any).location;
-      (window as any).location = { reload: mockReload };
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+      });
 
       render(await HomePage());
 
