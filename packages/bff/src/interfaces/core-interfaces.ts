@@ -8,6 +8,12 @@ import type {
   LoggerInterface as CoreLoggerInterface,
 } from '@template/core';
 
+// Core層のインターフェースを再エクスポート
+export type {
+  HealthServiceInterface,
+  LoggerInterface as CoreLoggerInterface,
+} from '@template/core';
+
 /**
  * Core層のヘルスチェックサービスインターフェース
  * @deprecated 統一インターフェースHealthServiceInterfaceを使用してください

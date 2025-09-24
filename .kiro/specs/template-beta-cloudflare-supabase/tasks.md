@@ -93,7 +93,7 @@
   - .husky/pre-commit で generate:check を再有効化
   - lint-staged の全チェック（ESLint, Prettier, TypeScript, OpenAPI）を有効化
   - **フォローアップ**: Task26 で手動型アサーションを排除済み
-  - _要件: 6.2, 6.3_
+  - \_要件: 6
 
 - [x] 10.2. Kiro IDE自動修正後の問題修正
   - Windows環境でのpackage.jsonコマンド互換性修正（cross-env使用）
@@ -147,12 +147,33 @@
   - 認証関連の環境変数設定
   - _要件: 4.2, 7.1_
 
-- [ ] 14. Next.js 認証ミドルウェアの実装
+- [x] 14. Next.js 認証ミドルウェアの実装
   - middleware.ts の実装
   - Supabase Auth Cookie によるセッション管理
   - /home ルートの認証保護
   - 未認証時のリダイレクト処理
   - _要件: 4.3, 4.4, 7.1_
+
+- [x] 14.1 TypeScript型エラーの修正
+  - client-error-boundary.tsx の window 型エラー修正
+  - performance-monitor.ts の window 型エラー修正
+  - tsconfig.json の DOM ライブラリ設定追加
+  - 型チェック通過の確認
+  - _要件: 技術的品質保証_
+
+- [x] 14.2 Health API Route の型エラー修正
+  - app/api/health/route.ts の result 型エラー修正
+  - BFF層からの戻り値の型定義を明確化
+  - result.success, result.data, result.error の型安全性確保
+  - 型チェック通過の確認
+  - _要件: 技術的品質保証_
+
+- [x] 14.3 ESLint エラーの修正
+  - middleware.test.ts の any 型警告修正（3箇所）
+  - supabase-adapter.ts の any 型エラー修正（2箇所）
+  - 適切な型定義の追加
+  - lint-staged 通過の確認
+  - _要件: 技術的品質保証_
 
 - [ ] 15. 認証 Route Handlers の実装
   - /auth/login/route.ts の実装

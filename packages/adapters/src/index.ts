@@ -5,6 +5,9 @@ export type {
   ConnectionCheckResult,
 } from './supabase/supabase-adapter';
 
+// Re-export SupabaseClient type from @supabase/supabase-js
+export type { SupabaseClient } from '@supabase/supabase-js';
+
 export { LoggerAdapter } from './logger/logger-adapter';
 export type {
   LoggerConfig,

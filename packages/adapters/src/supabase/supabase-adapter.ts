@@ -1,5 +1,5 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
+import { createClient, SupabaseClient, Provider } from '@supabase/supabase-js';
 import { z } from 'zod';
 
 // 設定スキーマ
@@ -33,7 +33,21 @@ export class SupabaseAdapter {
    */
   createServerClient(cookieStore: {
     getAll(): Array<{ name: string; value: string }>;
-    setAll(cookies: Array<{ name: string; value: string; options?: any }>): void;
+    setAll(
+      cookies: Array<{
+        name: string;
+        value: string;
+        options?: {
+          domain?: string;
+          expires?: Date;
+          httpOnly?: boolean;
+          maxAge?: number;
+          path?: string;
+          sameSite?: 'strict' | 'lax' | 'none';
+          secure?: boolean;
+        };
+      }>
+    ): void;
   }) {
     return createServerClient(this.config.url, this.config.anonKey, {
       cookies: cookieStore,
@@ -82,14 +96,14 @@ export class SupabaseAdapter {
    * OAuth認証の開始
    */
   async signInWithOAuth(params: {
-    provider: string;
+    provider: Provider;
     options?: {
       redirectTo?: string;
       scopes?: string;
     };
   }) {
     return this.client.auth.signInWithOAuth({
-      provider: params.provider as any,
+      provider: params.provider,
       options: params.options,
     });
   }

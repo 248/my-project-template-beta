@@ -10,7 +10,11 @@ import {
   isMonolithMode,
   validateEnvConfig,
 } from '@template/adapters';
-import { HealthService, ApiClientAdapter } from '@template/bff';
+import {
+  HealthService,
+  ApiClientAdapter,
+  type HealthServiceResult,
+} from '@template/bff';
 import { CoreHealthService } from '@template/core';
 import type { HealthResponse, ErrorResponse } from '@template/generated';
 import { NextRequest, NextResponse } from 'next/server';
@@ -184,7 +188,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // BACKEND_MODEに応じてヘルスチェックを実行
-    let result: any;
+    let result: HealthServiceResult;
 
     if (isMonolithMode()) {
       // monolithモード: 直接BFFサービス呼び出し

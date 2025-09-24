@@ -102,7 +102,7 @@ export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
-  private retryTimeoutId: number | null = null;
+  private retryTimeoutId: NodeJS.Timeout | null = null;
 
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -132,7 +132,7 @@ export class ErrorBoundary extends Component<
 
   componentWillUnmount() {
     if (this.retryTimeoutId) {
-      clearTimeout(this.retryTimeoutId as any);
+      clearTimeout(this.retryTimeoutId);
     }
   }
 
@@ -144,7 +144,7 @@ export class ErrorBoundary extends Component<
         error: undefined,
         errorInfo: undefined,
       });
-    }, 100) as any;
+    }, 100);
   };
 
   handleResetError = () => {

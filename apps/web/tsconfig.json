@@ -4,6 +4,7 @@
     "composite": true,
     "noEmit": false,
     "outDir": "./dist",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],

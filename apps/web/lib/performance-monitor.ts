@@ -234,12 +234,13 @@ export class AdvancedPerformanceMonitor extends PerformanceMonitor {
     const operations = new Set<string>();
 
     // 測定データから操作名を取得
-    for (const operation of this.getAllStats()) {
-      operations.add(Object.keys(operation)[0]);
+    const allStats = this.getAllStats();
+    for (const operationName of Object.keys(allStats)) {
+      operations.add(operationName);
     }
 
     // アラート設定から操作名を取得
-    for (const operation of this.alerts.keys()) {
+    for (const operation of Array.from(this.alerts.keys())) {
       operations.add(operation);
     }
 

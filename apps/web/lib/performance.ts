@@ -169,7 +169,7 @@ export class PerformanceMonitor {
   getAllStats(): Record<string, PerformanceStats> {
     const stats: Record<string, PerformanceStats> = {};
 
-    for (const operation of this.measurements.keys()) {
+    for (const operation of Array.from(this.measurements.keys())) {
       const operationStats = this.getStats(operation);
       if (operationStats) {
         stats[operation] = operationStats;
@@ -282,7 +282,7 @@ export function logPerformanceStats(operation?: string): void {
 
     for (const [op, stats] of Object.entries(allStats)) {
       formattedStats[op] = {
-        count: stats.count,
+        count: stats.count.toString(),
         average: `${stats.average.toFixed(2)}ms`,
         p95: `${stats.p95.toFixed(2)}ms`,
         target: stats.p95 <= 300 ? '✅' : '❌',
