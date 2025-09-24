@@ -35,7 +35,7 @@ export interface EnvConfig {
 function getEnvVar(key: string, defaultValue?: string): string {
   // Cloudflare Workers環境では、環境変数はglobalThisに注入される
   const value =
-    (globalThis as any)[key] || // wrangler secret / CI
+    (globalThis as Record<string, unknown>)[key] || // wrangler secret / CI
     process.env[key] || // .dev.vars / process.env
     defaultValue;
 

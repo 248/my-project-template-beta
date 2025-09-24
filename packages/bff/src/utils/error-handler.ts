@@ -11,6 +11,10 @@ import {
   ValidationError,
   HealthCheckError,
   TimeoutError,
+  AuthError,
+  AuthProviderError,
+  SessionError,
+  OAuthError,
 } from '../types/error-types';
 
 /**
@@ -58,7 +62,9 @@ export class ErrorHandler {
     // タイムアウトエラーの場合
     if (
       error instanceof Error &&
-      (error.message.includes('Timeout') || error.message.includes('timeout'))
+      (error.message.includes('Timeout') ||
+        error.message.includes('timeout') ||
+        error.message.includes('Auth operation timeout'))
     ) {
       logger.error(
         {
@@ -138,6 +144,14 @@ export class ErrorHandler {
 
     if (error instanceof TimeoutError) {
       return 504; // Gateway Timeout
+    }
+
+    if (error instanceof AuthError || error instanceof SessionError) {
+      return 401; // Unauthorized
+    }
+
+    if (error instanceof AuthProviderError || error instanceof OAuthError) {
+      return 400; // Bad Request
     }
 
     if (error instanceof BFFError) {

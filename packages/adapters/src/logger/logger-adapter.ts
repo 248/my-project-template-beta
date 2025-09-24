@@ -38,7 +38,7 @@ export interface LogContext {
   traceId?: string;
   userId?: string;
   requestId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class LoggerAdapter {
