@@ -1,0 +1,5 @@
+# OpenAPI生成物の同期チェック
+pnpm run generate:check
+
+# lint-stagedの実行
+pnpm run pre-commit

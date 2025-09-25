@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@template/core": ["./packages/core/src"],
+      "@template/bff": ["./packages/bff/src"],
+      "@template/adapters": ["./packages/adapters/src"],
+      "@template/generated": ["./packages/generated/src"]
+    }
+  },
+  "include": ["next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "dist", ".next"],
+  "references": [
+    {
+      "path": "./apps/web"
+    },
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/bff"
+    },
+    {
+      "path": "./packages/adapters"
+    },
+    {
+      "path": "./packages/generated"
+    }
+  ]
+}

@@ -1,0 +1,484 @@
+openapi: 3.0.3
+info:
+  title: Template Beta Cloudflare Supabase API
+  description: Next.js + OpenNext + Cloudflare Workers + Supabase テンプレートのAPI仕様
+  version: 1.0.0
+  contact:
+    name: Template Beta API Support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8787
+    description: ローカル開発環境
+  - url: https://template-beta.example.com
+    description: 本番環境
+
+paths:
+  /api/health:
+    get:
+      summary: システムヘルスチェック
+      description: システム全体の稼働状況とバックエンドサービスの接続状況を確認します
+      operationId: getHealth
+      tags:
+        - Health
+      security: [] # パブリックエンドポイント（認証不要）
+      responses:
+        '200':
+          description: ヘルスチェック結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/health/performance:
+    get:
+      summary: パフォーマンス統計取得
+      description: システムのパフォーマンス統計情報を取得します
+      operationId: getPerformanceStats
+      tags:
+        - Health
+        - Performance
+      security: [] # パブリックエンドポイント（認証不要）
+      responses:
+        '200':
+          description: パフォーマンス統計
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceStatsResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: パフォーマンス統計リセット
+      description: パフォーマンス統計をリセットします
+      operationId: resetPerformanceStats
+      tags:
+        - Health
+        - Performance
+      security: [] # パブリックエンドポイント（認証不要）
+      parameters:
+        - name: operation
+          in: query
+          required: false
+          schema:
+            type: string
+          description: リセット対象の操作名（指定しない場合は全統計をリセット）
+          example: 'api-health-check'
+      responses:
+        '200':
+          description: リセット成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                  - traceId
+                  - timestamp
+                properties:
+                  message:
+                    type: string
+                    example: 'All performance statistics have been reset'
+                  traceId:
+                    type: string
+                    example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2024-01-01T00:00:00.000Z'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      summary: OAuth認証開始
+      description: 指定されたプロバイダーでOAuth認証を開始します
+      operationId: authLogin
+      tags:
+        - Authentication
+      security: [] # パブリックエンドポイント（認証不要）
+      parameters:
+        - name: provider
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [google, github, discord]
+          description: OAuth認証プロバイダー
+          example: google
+        - name: redirectTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uri
+          description: 認証後のリダイレクト先URL
+          example: 'http://localhost:8787/home'
+      responses:
+        '200':
+          description: 認証URL生成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/callback:
+    get:
+      summary: OAuth認証コールバック
+      description: OAuth認証プロバイダーからのコールバックを処理します
+      operationId: authCallback
+      tags:
+        - Authentication
+      security: [] # パブリックエンドポイント（認証不要）
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: OAuth認証コード
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: CSRF保護用のstate値
+      responses:
+        '200':
+          description: 認証成功（開発環境用）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  redirectTo:
+                    type: string
+                    format: uri
+                    example: '/home'
+        '302':
+          description: 認証成功後のリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: リダイレクト先URL
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      summary: ログアウト
+      description: 現在のセッションを終了します
+      operationId: authLogout
+      tags:
+        - Authentication
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '401':
+          description: 認証が必要
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: システムエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - services
+        - traceId
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          description: システム全体のステータス
+          example: healthy
+        timestamp:
+          type: string
+          format: date-time
+          description: ヘルスチェック実行時刻
+          example: '2024-01-01T00:00:00.000Z'
+        services:
+          type: array
+          description: 各サービスの詳細ステータス
+          items:
+            $ref: '#/components/schemas/ServiceHealth'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+
+    ServiceHealth:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+          description: サービス名
+          example: 'supabase'
+        status:
+          type: string
+          enum: [up, down]
+          description: サービスの稼働状況
+          example: up
+        responseTime:
+          type: number
+          description: レスポンス時間（ミリ秒）
+          minimum: 0
+          example: 150
+        error:
+          type: string
+          description: エラーメッセージ（エラー時のみ）
+          example: 'Connection timeout'
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - traceId
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+
+    ErrorDetail:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: 'INTERNAL_SERVER_ERROR'
+        message:
+          type: string
+          description: エラーメッセージ
+          example: 'Internal server error occurred'
+        details:
+          type: object
+          description: エラー詳細情報（オプション）
+          additionalProperties: true
+
+    AuthResponse:
+      type: object
+      required:
+        - data
+        - traceId
+      properties:
+        data:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              format: uri
+              description: OAuth認証用のURL
+              example: 'https://accounts.google.com/oauth/authorize?...'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+
+    LogoutResponse:
+      type: object
+      required:
+        - success
+        - traceId
+      properties:
+        success:
+          type: boolean
+          description: ログアウト成功フラグ
+          example: true
+        message:
+          type: string
+          description: ログアウト完了メッセージ
+          example: 'Successfully logged out'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+
+    PerformanceStatsResponse:
+      type: object
+      required:
+        - timestamp
+        - traceId
+        - stats
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: 統計取得時刻
+          example: '2024-01-01T00:00:00.000Z'
+        traceId:
+          type: string
+          description: リクエストトレースID
+          example: 'trace-123e4567-e89b-12d3-a456-426614174000'
+        stats:
+          type: array
+          description: 操作別パフォーマンス統計
+          items:
+            $ref: '#/components/schemas/PerformanceStats'
+
+    PerformanceStats:
+      type: object
+      required:
+        - operation
+        - totalCount
+        - successCount
+        - errorCount
+        - successRate
+        - avgDuration
+        - minDuration
+        - maxDuration
+        - p50Duration
+        - p95Duration
+        - p99Duration
+        - lastUpdated
+      properties:
+        operation:
+          type: string
+          description: 操作名
+          example: 'api-health-check'
+        totalCount:
+          type: integer
+          description: 総実行回数
+          minimum: 0
+          example: 1000
+        successCount:
+          type: integer
+          description: 成功回数
+          minimum: 0
+          example: 995
+        errorCount:
+          type: integer
+          description: エラー回数
+          minimum: 0
+          example: 5
+        successRate:
+          type: number
+          description: 成功率（パーセント）
+          minimum: 0
+          maximum: 100
+          example: 99.5
+        avgDuration:
+          type: number
+          description: 平均実行時間（ミリ秒）
+          minimum: 0
+          example: 125.5
+        minDuration:
+          type: number
+          description: 最小実行時間（ミリ秒）
+          minimum: 0
+          example: 50.2
+        maxDuration:
+          type: number
+          description: 最大実行時間（ミリ秒）
+          minimum: 0
+          example: 500.8
+        p50Duration:
+          type: number
+          description: p50実行時間（ミリ秒）
+          minimum: 0
+          example: 120.3
+        p95Duration:
+          type: number
+          description: p95実行時間（ミリ秒）
+          minimum: 0
+          example: 250.7
+        p99Duration:
+          type: number
+          description: p99実行時間（ミリ秒）
+          minimum: 0
+          example: 400.1
+        lastUpdated:
+          type: string
+          format: date-time
+          description: 最終更新時刻
+          example: '2024-01-01T00:00:00.000Z'
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sb-access-token
+      description: Supabase認証Cookie
+
+tags:
+  - name: Health
+    description: システムヘルスチェック関連のAPI
+  - name: Performance
+    description: パフォーマンス監視関連のAPI
+  - name: Authentication
+    description: 認証・認可関連のAPI
